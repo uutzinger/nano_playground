@@ -8,13 +8,6 @@
 # Isaac robotics link: https://docs.nvidia.com/isaac/isaac/doc/setup.html
 #
 # Issues:
-# Could not open input file 
-#   CMakeFiles/realsense2.dir/src/proc/
-#     temporal-filter.cpp.o
-#     disparity-transfrom.cpp.o
-#     hole-filling-filter.cpp.o
-#   They were 0 bytes
-#   fixed by deleting by hand and recompiling
 #
 # Requirement:
 # Make sure the kernel is patched before building these packages.

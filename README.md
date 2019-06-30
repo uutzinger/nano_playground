@@ -17,18 +17,50 @@ This script is based on jetson_easy.
 ## buildKernelAndModule.sh
 
 This script downloads the kernel sources and gives the ability to setup additional
-kernel features such as booting from USB SSD, zswap and VLAN support.
+kernel features such as booting from USB SSD, zswap, intelrealsense.
 This script requires execution in stages and does not run on its own.
+
+## install_RealVNCalternative.sh
+Suggested approach to install and build OpenVPN home server to connect
+to devices. I have been using NoMachine server/client to access remote desktop.
 
 ## install_basics.sh
 
 This script prepares the operating system for software development environment with QT and Python.
 
+## install_blinka.sh
+
+Adafruit python bindings
+
+## install_caffe.sh
+
+Build caffe
+
+## install_CMake.sh
+
+Donwload and build latest version of CMake.
+
+## install_jetsonGPIO.sh
+
+Update latest version of jetson-gpio.
+
+## install_leveldb.sh
+
+Google's leveldb.
+
+## install_librealsense.sh
+
+Building librealsense for intelRealsense.
+
+## install_networktables.sh
+
+Network tables for FIRST robotics.
+
 ## install_tensorflow_keras.sh
 
 This script installs common AI tools and is based on jetson_easy.
 
-## install_itk_vtk.sh
+## install_tbb_itk_vtk.sh
 
 This script has not yet completed and itk section still needs work.
 
@@ -39,4 +71,14 @@ This script downloads lates OpenCV code and compiles it with ideal nano settings
 ## install_vscode.sh
 
 This script installs Visual Studio Code. Its is based on jetson_easy.
-Not yet fully polished.
+
+
+## install_protobuf.sh
+
+Google's protobuf.
+
+## ibstakk_ros.sh
+
+Get Robot OS running.
+
+
