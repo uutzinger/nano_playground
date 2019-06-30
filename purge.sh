@@ -3,7 +3,8 @@
 # Purge for minimal AI system
 # No office tools and reduced unity lens and scope needed
 #
-# [If you copy paste this into shell you need to copy paste each line]
+# Reference
+#  https://github.com/rbonghi/jetson_easy
 #####################################################################################
 
 #####################################################################################

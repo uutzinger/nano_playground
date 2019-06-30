@@ -1,17 +1,209 @@
-#!/bin/bash
+##################################################################
+# 
+# OpenCV installation 
 #
-# Copyright (c) 2018, NVIDIA CORPORATION.  All rights reserved.
+# The following instruction will install many additional bindings
+# and prepare the system for optimal OpenCV installation.
+# 
+# Comment 
+# This got a little out of hand as many of the standard
+# "How to build opencv scripts" did not complete for my configuration. 
+# I worked myself trough the many "not found" and built the
+# latest CMake with cmake-gui and selected the options needed 
+# to successfuly compile.
+# The final goal is to allow Caffe and dnn to be recognized and
+# integrated. Caffe will be patched to work with OpenCV2 > 4.0.
 #
-# NVIDIA Corporation and its licensors retain all intellectual property
-# and proprietary rights in and to this software, related documentation
-# and any modifications thereto.  Any use, reproduction, disclosure or
-# distribution of this software and related documentation without an express
-# license agreement from NVIDIA Corporation is strictly prohibited.
+# Pre-requisits
+#  -run install_basics.sh before this one
+#  -install vtk from VTK install script
+#  -install caffe
 #
+# Urs Utzinger, Summer 2019
+#################################################################
 
-#################################
-# AND
-#################################
+#################################################################
+# tesseract Open Source Optical Character Recognition
+#################################################################
+sudo apt-get -y install tesseract-ocr
+sudo apt-get -y install tesseract-ocr-all
+sudo apt-get -y install libtesseract-dev
+sudo apt-get -y install libtesseract4
+sudo -H pip3 install pyocr
+sudo -H pip  install pyocr
+sudo apt-get -y install yagf
+
+#
+sudo apt-get -y update
+sudo apt-get -y dist-upgrade
+# sudo apt-get -y purge libopencv*
+sudo apt-get -y autoremove
+sudo apt-get update
+
+#################################################################
+# Patching
+#################################################################
+
+# https://devtalk.nvidia.com/default/topic/1007290/jetson-tx2/building-opencv-with-opengl-support-/post/5141945/#5141945
+# https://www.thegeekstuff.com/2014/12/patch-command-examples
+sudo nano /usr/local/cuda/include/cuda_gl_interop.h
+# Change:
+#
+# #if defined(__arm__) || defined(__aarch64__)
+# #ifndef GL_VERSION
+# #error Please include the appropriate gl headers before including cuda_gl_int$
+# #endif
+# #else
+# #include <GL/gl.h>
+# #endif
+#
+# to:
+#
+# //#if defined(__arm__) || defined(__aarch64__)
+# //#ifndef GL_VERSION
+# //#error Please include the appropriate gl headers before including cuda_gl_int$
+# //#endif
+# //#else
+# #include <GL/gl.h>
+# //#endif
+
+# If you get following errors:
+# /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/libGL.so: undefined reference to `drmMap'
+# /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/libGL.so: undefined reference to `drmCloseOnce'
+# /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/libGL.so: undefined reference to `drmUnmap'
+# /usr/lib/gcc/aarch64-linux-gnu/5/../../../aarch64-linux-gnu/libGL.so: undefined reference to `drmOpenOnce'
+#
+# fix them with
+#
+#cd /usr/lib/aarch64-linux-gnu/
+#sudo ln -sf tegra/libGL.so libGL.so
+
+#################################################################
+# Download
+cd ~
+curl -L https://github.com/opencv/opencv/archive/4.1.0.zip -o opencv-4.1.0.zip
+curl -L https://github.com/opencv/opencv_contrib/archive/4.1.0.zip -o opencv_contrib-4.1.0.zip
+unzip opencv-4.1.0.zip 
+unzip opencv_contrib-4.1.0.zip 
+
+# Build
+cd opencv-4.1.0
+mkdir build
+cd build
+
+#If you compiled new cmake:
+~/CMake/bin/cmake-gui ..
+# otherwise use:
+cmake ..
+################################################
+# To start run Configure
+# Enable Advanced
+# Set flags below
+# Run Configure until no more errors
+# Finally Generate
+# Ren Generate until no more errors
+################################################
+# CMAKE_BUILD_TYPE=RELEASE
+# PROTOBUF_UPDATE_FILES=ON
+# OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib-4.1.0/modules
+# OPENCV_TEST_DATA_PATH=../opencv_extra/testdata
+########################
+# search python in cmake-gui window, then
+########################
+# BUILD_opencv_python2=ON 
+# BUILD_opencv_python3=ON 
+# PYTHON_INCLUDE_DIR=/usr/include/python3 
+# OPENCV_PYTHON3_VERSION=ON
+# PYTHON3_EXECUTABLE=/usr/bin/python3
+# PYTHON2_NUMPY_INCLUDE_DIRS=/usr/local/lib/python2.7/dist-packages/numpy/core/include
+# PYTHON3_NUMPY_INCLUDE_DIRS=/usr/local/lib/python3.6/dist-packages/numpy/core/include
+########################
+# search TBB in cmake-gui window, then
+########################
+# WITH_TBB=ON
+#TBB DIR /home/uutzinger/tbb
+#ENV INCLUDE /home/uutzinger/tbb
+#LIBRARY ENV /home/uutzinger/tbb/build/linux_aarch64_gcc_cc7.4.0_libc2.27_kernel4.9.140_release/libtbb.so
+#LIBRARY ENV DEBUG /home/uutzinger/tbb/build/linux_aarch64_gcc_cc7.4.0_libc2.27_kernel4.9.140_debug/libtbb_debug.so
+#INCLUDE /home/uutzinger/tbb/include
+#LIBRARY DEBUG /home/uutzinger/tbb/build/linux_aarch64_gcc_cc7.4.0_libc2.27_kernel4.9.140_debug/libtbb_debug.so
+#LIBRARY RELEASE /home/uutzinger/tbb/build/linux_aarch64_gcc_cc7.4.0_libc2.27_kernel4.9.140_release/libtbb.so
+#MALLOC INCLUDE /home/uutzinger/tbb/include
+#MALLOC DEBUG /home/uutzinger/tbb/build/linux_aarch64_gcc_cc7.4.0_libc2.27_kernel4.9.140_debug/libtbbmalloc_debug.so
+#MALLOC RELEASE /home/uutzinger/tbb/build/# linux_aarch64_gcc_cc7.4.0_libc2.27_kernel4.9.140_release/libtbbmalloc.so
+#PROCY DEBUG /home/uutzinger/tbb/build/linux_aarch64_gcc_cc7.4.0_libc2.27_kernel4.9.140_debug/libtbbmalloc_proxy_debug.so
+#PROCY RELEASE /home/uutzinger/tbb/build/linux_aarch64_gcc_cc7.4.0_libc2.27_kernel4.9.140_release/libtbbmalloc_proxy.so
+#TBB_VER_FILE /usr/include/tbb/tbb_stddef.h
+########################
+# search for CUDA in cmake-gui window, then
+#######################
+# CUDA_VERSION=10.0
+# CUDA_ARCH_BIN="5.3"
+# CUDA_ARCH_PTX=""
+# CUDA_NVCC_FLAGS=--expt-relaxed-constexpr
+# CUDA_FAST_MATH=ON
+# WITH_CUDA=ON
+########################
+# search for WITH in cmake-gui window, then
+########################
+# WITH_CUBLAS=ON
+# WITH_GSTREAMER=ON
+# WITH_OPENGL=ON
+# WITH_QT=ON
+# WITH_V4L=ON
+# WITH_VTK=ON
+# VTK_DIR=/usr/local/lib/cmake/vtk-8.90
+# WITH_LIBREALSENSE=ON
+########################
+# search for ENABLE in cmake-gui window, then
+########################
+# ENABLE_NEON=ON
+# OPENCV_ENABLE_NONFREE=ON
+# ENABLE_PRECOMPILED_HEADERS=OFF 
+########################
+# search for BUILD in cmake-gui window, then
+########################
+# BUILD_opencv_dnn=ON, might need to be OFF for system protobuf
+# BUILD_EXAMPLES=ON 
+# BUILD_OPENEXR=ON
+# BUILD_WEBP=ON
+#
+# BUILD_TESTS=OFF 
+# BUILD_PERF_TESTS=OFF 
+# BUILD_opencv_legacy=OFF  
+# BUILD_PROTOBUF=OFF
+########################
+# search for INSTALL in cmake-gui window, then
+########################
+# INSTALL_C_EXAMPLES=OFF
+# INSTALL_PYTHON_EXAMPLES=ON
+# INSTALL_TESTS=OFF 
+# CMAKE_INSTALL_PREFIX=/usr/local
+################################################
+
+cp ~/caffe/build/install/include/caffe/proto ~/caffe/include/caffe/proto
+
+make -j4
+sudo make install
+# sudo apt-get -y install python-opencv python3-opencv
+sudo ldconfig
+
+python3 -c 'import cv2; print("python3 cv2 version: %s" % cv2.__version__)'
+python2 -c 'import cv2; print("python2 cv2 version: %s" % cv2.__version__)'
+
+#################################################################
+# libvisionworks
+# Completed
+#################################################################
+sudo apt-get -y install libvisionworks-samples* 
+sudo apt-get -y install libvisionworks-sfm-dev* 
+sudo apt-get -y install libvisionworks-tracking-dev*
+
+#################################################################
+# Some of this was collected from different sources and they had 
+# these statements on top of the file:
+
+# Copyright (c) 2018, NVIDIA CORPORATION.  All rights reserved.
 
 # Copyright (C) 2018, Raffaello Bonghi <raffaello@rnext.it>
 # All rights reserved
@@ -40,134 +232,4 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <Install Folder>"
-    exit
-fi
-folder="$1"
-user=""
-passwd=""
-
-#################################################################
-sudo apt-get update -y
-sudo apt purge libopencv* -y
-sudo apt autoremove -y
-sudo apt-get update -y
-sudo apt full-upgrade -y
-
-# Open GL
-sudo apt-get install -y libgl1 libglvnd-dev
-# Update GCC
-sudo apt-get install -y g++ 
-# Dependencies
-sudo apt-get install -y build-essential make cmake cmake-curses-gui git pkg-config curl apt-utils
-# GTK
-sudo apt-get install -y libgtk2.0-dev libglew-dev libgtk2.0-dev
-sudo apt-get install -y qt5-default
-# AV
-sudo apt-get install -y libavformat-dev libavutil-dev
-sudo apt-get install -y libavcodec-dev libavformat-dev libswscale-dev
-sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
-sudo apt-get install -y libdc1394-22-dev libxine2-dev
-sudo apt-get install -y libv4l-dev v4l-utils qv4l2 v4l2ucp
-sudo apt-get install -y libhdf5-serial-dev hdf5-tools
-sudo apt-get install -y libjpeg-turbo8-dev libxvidcore-dev libx264-dev libgtk-3-dev
-sudo apt-get install -y libjpeg-dev libpng-dev libtiff-dev libjasper-dev
-# Python
-sudo apt-get install -y libswscale-dev libeigen3-dev
-sudo apt-get install -y python2-dev python3-dev python-dev python-numpy python3-numpy
-# Intel TBB, Fortran, blas, atlas
-sudo apt-get install -y libtbb2 libtbb-dev
-sudo apt-get install -y libopenblas-dev libatlas-base-dev gfortran
-#
-sudo apt-get install libopenblas-dev
-#
-sudo apt-get update
-
-
-#################################################################
-# Patching
-#
-
-# https://devtalk.nvidia.com/default/topic/1007290/jetson-tx2/building-opencv-with-opengl-support-/post/5141945/#5141945
-#https://www.thegeekstuff.com/2014/12/patch-command-examples
-
-# sudo patch -p0 -N --dry-run --silent /usr/local/cuda/include/cuda_gl_interop.h patch/opencv/cuda_gl_interop.patch 2>/dev/null
-#if [ $? -eq 0 ];
-#then
-#    #apply the patch
-#    tput setaf 6
-#    tput sgr0
-#    sudo patch -N /usr/local/cuda/include/cuda_gl_interop.h patch/opencv/cuda_gl_interop.patch
-#else
-#    tput setaf 3
-#    tput sgr0
-#fi
-
-# If exist the tegra file
-# https://devtalk.nvidia.com/default/topic/946136/
-#if [ -f /usr/lib/aarch64-linux-gnu/tegra/libGL.so ]; then
-#    # Local folder
-#    local LOCAL_FOLDER=$(pwd)
-# 
-#    ### Fix the symbolic link of libGL.so
-#    tput setaf 6
-#    echo "Fix the symbolic link of libGL.so"
-#    tput sgr0
-#    cd /usr/lib/aarch64-linux-gnu/   
-#        
-#    sudo ln -sf tegra/libGL.so libGL.so
-#        
-#    # Restore previuous folder
-#    cd $LOCAL_FOLDER
-#fi
-
-#################################################################
-# Download
-cd $folder
-git clone https://github.com/opencv/opencv.git
-git clone https://github.com/opencv/opencv_contrib.git
-
-# Build
-cd opencv
-mkdir build
-cd build
-cmake -D CMAKE_BUILD_TYPE=RELEASE \
-  -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules \
-  -D CUDA_ARCH_BIN="5.3" \
-  -D CUDA_ARCH_PTX="" \
-  -D CUDA_NVCC_FLAGS=--expt-relaxed-constexpr \
-  -D CUDA_FAST_MATH=ON \
-  -D WITH_TBB=ON \
-  -D WITH_CUDA=ON \
-  -D WITH_GSTREAMER=ON \
-  -D WITH_GSTREAMER_0_10=OFF \
-  -D WITH_LIBV4L=ON \
-  -D WITH_CUBLAS=ON \
-  -D WITH_QT=ON \
-  -D WITH_OPENGL=ON \
-  -D ENABLE_NEON=ON \
-  -D ENABLE_FAST_MATH=ON \
-  -D OPENCV_ENABLE_NONFREE=ON \
-  -D BUILD_opencv_python2=ON \
-  -D BUILD_opencv_python3=ON \
-  -D BUILD_TESTS=OFF \
-  -D BUILD_PERF_TESTS=OFF \
-  -D BUILD_EXAMPLES=ON \
-  -D INSTALL_C_EXAMPLES=OFF \
-  -D INSTALL_PYTHON_EXAMPLES=ON \
-  -D INSTALL_TESTS=OFF \
-  -D OPENCV_TEST_DATA_PATH=../opencv_extra/testdata \
-  -D CMAKE_INSTALL_PREFIX=/usr/local ..
-
-make -j2
-sudo make install
-# check if needed ln -s /usr/local/lib/python3.6/site-packages/cv2/python-3.6/cv2.so cv2.so
-sudo apt-get install -y python-opencv python3-opencv
-sudo ldconfig
-
-# libvisionworks
-sudo apt install -y libvisionworks-samples* libvisionworks-sfm-dev* libvisionworks-tracking-dev*
-
 
