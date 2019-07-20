@@ -4,7 +4,6 @@ Some of the scripts can not be run as a whole but guide the user through the pro
 Sources for these scripts were https://github.com/rbonghi/jetson_easy as well as https://www.jetsonhacks.com/2019/04/25/jetson-nano-run-on-usb-drive/ which itself is based on https://syonyk.blogspot.com/2019/04/nvidia-jetson-nano-desktop-use-kernel-builds.html.
 
 CAUTION: You will need at least 32Gbyte SD card to build kernel or OpenCV.
-CAUTION: USB bandwidth will need to be shared between all devices attached to USB. The USB drivers do not seem to be bug free. For example my wirless keyboard requires unplug/replug regularly. I had issues copying between two USB drives; while one large copy process was executed the start of a second one would render the machine unusable.
 
 Urs Utzinger, 2019
 
@@ -20,9 +19,15 @@ This script downloads the kernel sources and gives the ability to setup addition
 kernel features such as booting from USB SSD, zswap, intelrealsense.
 This script requires execution in stages and does not run on its own.
 
+## biuld_qt.sh
+
+Qt5 does not compile on jetson nano and needs cross compiling. I wanted to build it for ITK-snap which has issues with
+Qt integration.
+
 ## install_RealVNCalternative.sh
+
 Suggested approach to install and build OpenVPN home server to connect
-to devices. I have been using NoMachine server/client to access remote desktop.
+to devices. I have been using NoMachine server/client to access a remote desktop.
 
 ## install_basics.sh
 
@@ -30,11 +35,11 @@ This script prepares the operating system for software development environment w
 
 ## install_blinka.sh
 
-Adafruit python bindings
+Adafruit python bindings.
 
 ## install_caffe.sh
 
-Build caffe
+Build caffe.
 
 ## install_CMake.sh
 
@@ -50,7 +55,7 @@ Google's leveldb.
 
 ## install_librealsense.sh
 
-Building librealsense for intelRealsense.
+Building librealsense for intelRealsense cameras.
 
 ## install_networktables.sh
 
@@ -62,23 +67,21 @@ This script installs common AI tools and is based on jetson_easy.
 
 ## install_tbb_itk_vtk.sh
 
-This script has not yet completed and itk section still needs work.
+This script install vtk and itk. ITK snap does not yet compile.
 
 ## install_opencv.sh
 
-This script downloads lates OpenCV code and compiles it with ideal nano settings.
+This script downloads lates OpenC and compiles it with optimized nano settings.
 
 ## install_vscode.sh
 
 This script installs Visual Studio Code. Its is based on jetson_easy.
 
-
 ## install_protobuf.sh
 
 Google's protobuf.
 
-## ibstakk_ros.sh
+## install_ros.sh
 
 Get Robot OS running.
-
 
