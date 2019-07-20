@@ -57,7 +57,27 @@ cd jetson-inference
 git submodule update --init
 mkdir build
 cd build
-cmake ..
-sudo make -j4
+cmake ../
+make -j4
 sudo make install
+
+# Open any of the modules that have camera version and
+# edit *.cpp and set camera to 0 at #define DEFAULT_CAMERA 0 //
+# check that you have a camera at /dev/video0 for camera 0
+
+###############################################################3
+#
+# Face Recognition Library
+#
+###############################################################3
+wget http://dlib.net/files/dlib-19.17.tar.bz2 
+tar jxvf dlib-19.17.tar.bz2
+cd dlib-19.17
+gedit dlib/cuda/cudnn_dlibapi.cpp
+//forward_algo = forward_best_algo;
+sudo python3 setup.py install
+sudo pip3 install face_recognition
+wget -O doorcam.py tiny.cc/doorcam
+python3 doorcam.py
+
 

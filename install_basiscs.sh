@@ -53,6 +53,8 @@ sudo apt-get -y install pylint
 #####################################################################################
 sudo apt-get -y install nano # light weight editor
 sudo apt-get -y install unzip
+sudo apt-get -y install sshpass
+
 # guake terminal, 
 # frequently used network connection, 
 # share keyboard and mouse between multiple computers
@@ -69,6 +71,7 @@ sudo apt-get -y install rsync  # install rsync, used for USB boot
 #####################################################################################
 
 # QT, this will pull 600MB and take some time
+sudo apt-get -y install qtbase5-dev
 sudo apt-get -y install qt5-default               # OpenCV
 sudo apt-get -y install qtcreator                 # OpenCV 
 sudo apt-get -y install libqt5x11extras5          # VTK
@@ -77,6 +80,8 @@ sudo apt-get -y install qt5ct
 sudo apt-get -y install qt5-style-plugins
 sudo apt-get -y install qt5-image-formats-plugins
 sudo apt-get -y install qtgstreamer-plugins-qt5
+sudo apt-get -y install libqt5gstreamer-dev
+
 # GTK
 sudo apt-get -y install libgtk-3-dev 
 sudo apt-get -y install libgtk2.0-dev libglew-dev # OpenCV
@@ -95,6 +100,7 @@ sudo apt-get -y install libtclap-dev              #
 sudo apt-get install -y libavformat-dev libavutil-dev libavcodec-dev
 sudo apt-get install -y libswscale-dev            # FFMpeg library for image scaling
 sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+libgstreamer-plugins-good1.0-dev
 sudo apt-get install -y libdc1394-22-dev libxine2-dev
 sudo apt-get install -y libv4l-dev v4l-utils qv4l2 v4l2ucp # video for linux
 sudo apt-get install -y libxvidcore-dev libx264-dev

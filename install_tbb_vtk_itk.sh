@@ -138,6 +138,46 @@ make install
 sudo -H pip install openslide-python
 sudo -H pip3 install openslide-python
 
+#######################################################
+# Using sytem libraries
+# Creating docs
+#######################################################
+sudo apt-get install castxml
+sudo apt-get install libpng-dev
+sudo apt-get install libtiff-dev
+sudo apt-get install libexpat1
+sudo apt-get install libexpat1-dev
+sudo apt-get install libdcmtk-dev
+sudo apt-get install dcmtk
+sudo apt-get install libvtkgdcm2.8
+sudo apt-get install libvtkgdcm2-dev
+sudo apt-get install libvtkgdcm-tools
+sudo apt-get install libgdcm-tools
+sudo apt-get install libgdcm2-dev
+sudo apt-get install libgdcm2.8
+sudo apt-get install libgtest-dev
+sudo apt-get install googletest
+sudo apt-get install libfftw3-mpi-dev
+sudo apt-get install libfftw3-mpi3
+sudo apt-get install libfftw3-3
+sudo apt-get install libfftw3-double3
+sudo apt-get install libfftw3-long3
+sudo apt-get install libfftw3-single3
+sudo apt-get install libfftw3-bin
+sudo apt-get install libfftw3-dev
+sudo apt-get install python3-h5py
+sudo apt-get install libhdf5-dev
+sudo apt-get install h5utils
+sudo apt-get install hdf5-tools
+sudo apt-get install libhdf5-100
+sudo apt-get install libhdf5-cpp-100
+sudo apt-get install libhdf5-mpi-dev
+sudo apt-get install libminc-dev
+sudo apt-get install libminc2-4.0.0
+sudo apt-get install swig
+sudo apt-get install texlive-latex-extra
+sudo apt-get install texmaker
+
 #########################################################################
 # ITK
 # still working on it
@@ -150,87 +190,111 @@ cd ITK
 mkdir build
 cd build
 #########################################################################
-~/CMake/bin/cmake-gui ..         # This will take along time
+~/CMake/bin/cmake-gui ..         # This will take some time
 # Configure,  until there are no more errors / no red fields ...
-# Generate, which might take a while (Generate button switches to Stop)
-# First USE DEFAULT FEATURES
+# First dont add any features. Make a default build.
+# Generate (Generate button switches to Stop)
+#
+# Completed
 #########################################################################
 make -j4
 sudo make install
+# Completed
+#########################################################################
+# Python
+sudo -H python  -m pip  install --upgrade pip
+sudo -H python3 -m pip  install --upgrade pip3
+sudo -H python  -m pip  install scikit-build
+sudo -H python3 -m pip  install scikit-build
+sudo -H python  -m pip  install itk
+sudo -H python3 -m pip  install itk
 
 #########################################################################
 # Now play with extra modules
-# 
-# ITK_BUILD_DEFAULT_MODULES	ON
-# ITK_USE_GPU 			OFF, OpenCL not available for jetson nano 
-# ITK_USE_KWSTYLE               ON, might need to be turned off
-# ITK_WRAP_PYTHON		ON
-
-#   Module_SphinxExamples	OFF, does not configure
-#   Module_PhaseSymmetry	OFF, does not configure
-#   Module_RTK			OFF, can not find Eigen and some modules already defined errors
-#   RTK_BUILD_APPLICATIONS      OFF, does not configure
-#   Module_SkullStrip_BUILD_EXA OFF, does not configure
-#   Module_VariationRegistrat   OFF, does not configure
-#   Module_WikiExamples         OFF, does not configure
-#   Module_LesionSizingToolkit  OFF, does not configure
-#   Module_ITKIODCMTK		OFF, does not compile
-#   Module_IOTransformDCMTK     OFF, does not complile
-
+#########################################################################
 #
-# ITKIOImageBaseCastXML does not compile
-# ITKDCMTK_ExtProject
-# ITKIOImageBaseBase
+# 1st)
+# ITK_BUILD_DEFAULT_MODULES		ON
+# ITK_USE_GPU 				OFF, OpenCL not available for jetson nano 
+# ITK_WRAP_PYTHON			ON
+# Module_ITKCudaCommon			ON
+# add manual entry in cmake-gui: CUDA_VERSION_STRING and set it to 10.0
+# ITK_LEGACY_SILENT			ON
+make -j2           # This will take a very long time
+sudo make install  #
 #
-
-# Modules on GITHUB ITK consortium
-#  Module_AnisotropicDiffusionLBR ON
-#  Module_AnalyzeObjectMap 	ON
-#  Module_BioCell		ON
-#  Module_BoneMorphometry	ON
-#  ITK_WRAP_PYTHON		ON
-#  Module_BridgeNumPy		ON
-#  Module_Cuberille		ON
+# Incomplete, arm_neon.h errors
+#########################################################################
+#
+# 2nd)
+# ITK_USE_SYSTEM_CASTXML		ON
+# ITK_USE_SYSTEM_DCMTK			ON
+# ITK_USE_SYSTEM_DOUBLECONVERSION	OFF, no find script
+# ITK_USE_SYSTEM_EIGEN                  ON
+# ITK_USE_SYSTEM_EXPAT			ON
+# ITK_USE_SYSTEM_FFTW			ON
+# ITK_USE_SYSTEM_GDCM			ON
+# ITK_USE_SYSTEM_GOOGLETEST		ON
+# ITK_USE_SYSTEM_HDF5			OFF, cannot find include dirs
+# ITK_USE_SYSTEM_JPEG			ON
+# ITH_USE_SYSTEM_KWIML			OFF, not in apt store
+# ITK_USE_SYSTEM_LIBRARIES		ON
+# ITK_USE_SYSTEM_MINC			ON
+# ITK_USE_SYSTEM_PNG			ON
+# ITK_USE_SYSTEM_SWIG			ON
+# ITK_USE_SYSTEM_TIFF			ON
+# ITK_USE_SYSTEM_VXL			ON
+# ITK_USE_SYSTEM_ZLIB			ON
+# ITK_USE_SYSTEM_proxTV			OFF, not in apt store
+#
+# Modules on GITHUB ITK consortium:
+#
+#  Module_AnisotropicDiffusionLBR 	ON
+#  Module_AnalyzeObjectMap 		ON
+#  Module_BioCell			ON
+#  Module_BoneMorphometry		ON
+#  ITK_WRAP_PYTHON			ON
+#  Module_BridgeNumPy			ON
+#  Module_Cuberille			ON
 #  Module_FixedPointInverseDisplacementField ON
-#  Module_GenericLabelInterpolator ON
-#  Module_HigherOrderAccurateGradient ON
-#  Module_ITKVIdeoBridgeOpenCV	OFF, compilation fails, FOURCC and other issues
-#  Module_ITKVideoBridgeVXL     ON
-#    ITK_USE_SYSTEM_VXL		ON
-#  Module_ITKThickness3D	OFF
+#  Module_GenericLabelInterpolator 	ON
+#  Module_HigherOrderAccurateGradient 	ON
+#  Module_ITKVIdeoBridgeOpenCV		ON
+#  Module_ITKVideoBridgeVXL     	OFF  
+#    ITK_USE_SYSTEM_VXL			ON
+#  Module_ITKThickness3D		OFF
 #     cd ${itk_src}/Modules/External
 #     git clone https://github.com/InsightSoftwareConsortium/ITKThickness3D
-#  Module_ITKDCMTK		ON
-#  Module_ITKIODCMTK		ON
-#  Module_IOTransformDCMTK	ON
-#  Module_IOMeshSTL		ON
-#  Module_IOTransform 		ON
-#  Module_IsotropicWavelets     ON
-#  Module_ITKVtkGlue		ON
-#  Module_IOFDF                 ON
-#  Module_IOOpenSlide           ON 
-#  Module_LabelErodeDilate      ON
-#  LesionSizingTookit           OFF
-#  Module_LesionSizingToolkit	ON
-#  LSTK_USE_VTK 		ON
-#  Module_MinimalPathExtraction ON
-#  Module_NeuralNetworks        ON
-#  Module_ParabolicMorphology   ON
-#  Module_PerformanceBenchmarking ON
-#  Module_PrincipalComponentAnalysis ON
-#  Module_PolarTransform	ON
-#  Module_RobustPredicate 	ON
-#  Module_SCIFIO 		ON
-#  Module_SkullStrip		ON
+#  Module_ITKDCMTK			ON
+#  Module_ITKIODCMTK			OFF
+#  Module_IOTransformDCMTK		OFF
+#  Module_IOMeshSTL			ON
+#  Module_IOTransform 			ON
+#  Module_IsotropicWavelets     	ON
+#  Module_ITKVtkGlue			ON
+#  Module_IOFDF                 	ON
+#  Module_IOOpenSlide           	ON 
+#  Module_LabelErodeDilate      	ON
+#  Module_LesionSizingToolkit		OFF
+#  LSTK_USE_VTK 			ON
+#  Module_MinimalPathExtraction 	ON
+#  Module_NeuralNetworks        	ON
+#  Module_ParabolicMorphology   	ON
+#  Module_PerformanceBenchmarking 	ON
+#  Module_PrincipalComponentAnalysis 	ON
+#  Module_PolarTransform		ON
+#  Module_RobustPredicate 		ON
+#  Module_SCIFIO 			ON
+#  Module_SkullStrip			ON
 #  Module_SmoothingRecursiveYvvGaussianFilter ON
-#  Module_SplitComponents	ON
-#  Module_SubdivisioQuadEdgeMeshFilter ON
-#  Module_TextureFeatures	ON
-#  Module_TotalVariation	ON
-#  Module_TwoProjectionRegistration ON
-#  Module_VariationalRegistration OFF
-#  Module_WikiExamples		OFF
-#  Module_ITKTBB		OFF
+#  Module_SplitComponents		ON
+#  Module_SubdivisioQuadEdgeMeshFilter 	ON
+#  Module_TextureFeatures		ON
+#  Module_TotalVariation		ON
+#  Module_TwoProjectionRegistration 	ON
+#  Module_VariationalRegistration 	OFF
+#  Module_WikiExamples			OFF
+#  Module_ITKTBB			OFF
 #   TBB_DIR                        /home/utzinger/tbb
 #   TBB_INCLUDE                    /home/utzinger/tbb/include
 #   TBB_LIBRARY_DEBUG              /home/utzinger/tbb/build/... libtbb_debug.so
@@ -241,107 +305,85 @@ sudo make install
 #   TBB_MALLOC_PROXY_INCLUDE_DIR   /home/utzinger/tbb/include
 #   TBB_MALLOC_PROXY_LIBRARY_DEBUG /home/utzinger/tbb/build/... libtbb_malloc_proxy_debug.so
 #   TBB_MALLOC_PROXY_LIBRARY_RELEASE /home/utzinger/tbb/build/... libtbb_malloc/proxy.so
-#
+# BUILD_DOCUMENTATION                   OFF, ON when compiling without errors
+# Incomplete
 #########################################################################
 # Fixing issues:
 #
 # Because of
 #
-#
-#   CMake Error at /usr/local/lib/cmake/opencv4/OpenCVConfig.cmake:108 (message):
+### CMake Error at /usr/local/lib/cmake/opencv4/OpenCVConfig.cmake:108 (message):
 #     OpenCV static library was compiled with CUDA 10.0 support.  Please, use the
 #     same version or rebuild OpenCV with CUDA
 #
 # Add manual entry in cmake-gui: CUDA_VERSION_STRING and set it to 10.0
 #
-#   CMake Error at Modules/Remote/LesionSizingToolkit/CMakeLists.txt:20 (include):
+### CMake Error at Modules/Remote/LesionSizingToolkit/CMakeLists.txt:20 (include):
 #     include called with wrong number of arguments.  include() only takes one
 #     file.
 #  include(${VTK_USE_FILE}), issue is that VTK_USE_FILE is empty/not defined
-# Tried manual download and manual build but does not complete
+#  Tried manual download and manual build but does not complete
 # 	sudo python3 -m pip install scikit-build
 #	 python3 setup.py build
-# ALso tried
+#  ALso tried
 # 	python -m pip install itk-lesionsizingtoolkit
+#
 # Module_Lesion... OFF
 #
-# Targets not yet defined:
-# Eigen;itkvcl;itknetlib;itkv3p_netlib;itkvnl;itkvnl_algo;itktestlib
-# Module_RTK OFF
+### Targets not yet defined:
+#  Eigen;itkvcl;itknetlib;itkv3p_netlib;itkvnl;itkvnl_algo;itktestlib
 #
-# Call Stack (most recent call first):
+# Module_RTK OFF
+### RTK_BUILD_APPLICATIONS OFF, does not configure
+#
+### Call Stack (most recent call first):
 #  Modules/Remote/WikiExamples/itk-module-init.cmake:8 (find_package)
 #  CMake/ITKModuleEnablement.cmake:318 (include)
 #  CMakeLists.txt:433 (include)
+#
 # Module_WikiExamples OFF
 #
-# CMake Error at Wrapping/TypedefMacros.cmake:730 (message):
+### CMake Error at Wrapping/TypedefMacros.cmake:730 (message):
 #  Wrapping itk::VariationalRegistrationCurvatureRegularizer: No image type
 #  for '2+' pixels is known.
+#
 # Module_Variational... OFF
 #
-# CMake Error in Wrapping/Generators/Python/PyUtils/CMakeLists.txt:
+### CMake Error in Wrapping/Generators/Python/PyUtils/CMakeLists.txt:
 #  Imported target "TBB::tbb" includes non-existent path
 #
 #    "/home/uutzinger/tbb/../../../include"
+#
 # Module TBB OFF
 #
-# CMakeFiles/ITKData.dir/build.make:16575: recipe for target 'ExternalData/Modules/Remote/Thickness3D/test/Baseline/medial_thickness.tiff-hash-stamp' failed
-#Module_Thickness3D OFF
-
+### CMakeFiles/ITKData.dir/build.make:16575: recipe for target 'ExternalData/Modules/Remote/Thickness3D/test/Baseline/medial_thickness.tiff-hash-stamp' failed
+#
+# Module_Thickness3D OFF
+#
+### In file included from /home/uutzinger/ITK/Modules/Video/BridgeVXL/src/itkVXLVideoIO.cxx:18:0:
+#/home/uutzinger/ITK/Modules/Video/BridgeVXL/include/itkVXLVideoIO.h:31:10: fatal error: vidl/vidl_ffmpeg_istream.h: No such file or directory
+# #include "vidl/vidl_ffmpeg_istream.h"
+#
+# Module_ITKVideoBridgeVXL OFF
+#
+### sh: 1: latex: not found
+#error: Problems running latex. Check your installation or look for typos in _formulas.tex and check #_formulas.log!
+#
+#sudo apt-get install texlive-latex-extra
+#sudo apt-get install texmaker
+#
+### Wrapping/Modules/ITKIOImageBase/CMakeFiles/ITKIOImageBaseCastXML.dir/build.make:71: recipe for target 'Wrapping/ITKIOImageBaseBase.xml' failed
+#make[2]: *** [Wrapping/ITKIOImageBaseBase.xml] Error 1
+#
+#Wrapping/Modules/ITKCommon/CMakeFiles/ITKCommonCastXML.dir/build.make:162: recipe for target 'Wrapping/itkVector.xml' failed
+#
+# USE_SYSTEM_CASTXML
+#
 ########################################################################
-
 # Generate
-
-sudo make -j4      # This will take a very long time (4-6 hours)
+make -j2      # This will take a very long time
 sudo make install  #
 
-#########################################################################
-#########################################################################
-# ITKMeshToPolyData --------------
-git clone https://github.com/InsightSoftwareConsortium/ITKMeshToPolyData/
-python3 ./setup.py
-
-# ITKNDreg ----------------------
-cd ~/ITK/Modules/ManualBuild
-git clone https://github.com/InsightSoftwareConsortium/ITKNDReg
-mkdir ITKNDReg-build
-cd ITKNDReg-build
-cmake -DITK_DIR=~/ITK/build ../ITKNDReg
-cmake --build .
-# ITKHigherOrderAccurateGradient
-cd ~/ITK/Modules/ManualBuild
-git clone https://github.com/InsightSoftwareConsortium/ITKHigherOrderAccurateGradient
-mkdir ITKHigherOrderAccurateGradient-build
-cd ITKHigherOrderAccurateGradient-build
-cmake -DITK_DIR=~/ITK/build ../ITKHigherOrderAccurateGradient
-cmake --build .
-# SimpleITK
-# https://github.com/InsightSoftwareConsortium/SimpleITK
-# ...
-
-# Individual Modules on TIK Github but not included in cmake-gui
-#
-# ITKBSplineGradient
-# ITKVoronoiQuadEdgeMeshFilter
-# ITKRingArtifcat
-#   python -m pip install itk-ringartifact
-# ITKArrayFire
-# TBBImageToImageFilter
-# itkMGHImageIO
-# ITKMeshNoise; Module to perturb objects
-# ITKPythonPackage; Builds Python Wheels
-# ITKModuleTemplate; Starting Point for New Modules
-# ITK-OpenCV-Bridge-Tutorial; How to use ITK from OpenCV
-#########################################################################
-#########################################################################
-
-#########################################################################
-# Python
-python  -m pip  install --upgrade pip
-python3 -m pip3 install --upgrade pip3
-python  -m pip  install itk
-python3 -m pip3 install itk
 
 #########################################################################
 #ITKMontage
@@ -356,7 +398,6 @@ cd ITKPerformanceVisualization
 yarn install
 yarn start
 
-
 #########################################################################
 # ITKTestImageFormats
 #########################################################################
@@ -368,9 +409,9 @@ https://github.com/InsightSoftwareConsortium/ITKTestImageFormats
 # ITK is at 5.0/5.1
 # VTK is at 8.90
 # CMake is at 3.14.1
-# Much newer than ITK snap requires.
 #########################################################################
 sudo apt-get install qt5dxcb-plugin
+cd ~
 git clone git://git.code.sf.net/p/itk-snap/src itksnap
 cd itksnap
 git submodule init
@@ -390,5 +431,4 @@ cd build
   CMake Error at CMakeLists.txt:1486 (get_property):
   get_property could not find TARGET Qt5::QXcbIntegrationPlugin.  Perhaps it
   has not yet been created.
-
 
