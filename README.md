@@ -10,7 +10,7 @@ Urs Utzinger, 2019
 ## purge.sh
 
 This script removes unity-lens and unity-scope components.
-It also removes libre office.
+It also removes libre office. With SSD it is not necessary to purge the system.
 This script is based on jetson_easy.
 
 ## buildKernelAndModule.sh
