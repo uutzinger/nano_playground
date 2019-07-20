@@ -19,9 +19,9 @@ This script downloads the kernel sources and gives the ability to setup addition
 kernel features such as booting from USB SSD, zswap, intelrealsense.
 This script requires execution in stages and does not run on its own.
 
-## biuld_qt.sh
+## build_qt.sh
 
-Qt5 does not compile on jetson nano and needs cross compiling. I wanted to build it for ITK-snap which has issues with
+Qt5 does not compile on my jetson nano and needs cross compiling. I wanted to build it for ITK-snap which has issues with
 Qt integration.
 
 ## install_RealVNCalternative.sh
