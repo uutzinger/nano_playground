@@ -78,14 +78,14 @@ cd caffe
 
 # Modify the standard Makefile
 ###############################
-gedit Makefile
+nano Makefile
 # -LIBRARIES += glog gflags protobuf boost_system boost_filesystem m
 # +LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial
 
 ################################
 # Modify the example config file
 ################################
-gedit Makefile.config.example
+nano Makefile.config.example
 # -# USE_CUDNN := 1
 # +USE_CUDNN := 1
 # 
@@ -134,11 +134,11 @@ cp Makefile.config.example Makefile.config
 source ~/.bashrc
 #
 sudo pip3 install pytest
-sudo pip  install pytest
+sudo pip2 install pytest
 #
 mkdir build
 cd build
-~/CMake/bin/cmake-gui ..
+cmake-gui ..
 # Configure
 # Generate
 make all

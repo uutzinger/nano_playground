@@ -5,9 +5,27 @@
 # References
 #  https://github.com/rbonghi/jetson_easy
 #  https://medium.com/@kcchien/jetson-nano-%E5%AE%89%E8%A3%9D-visual-studio-code-a26a279293e6
+#  https://devtalk.nvidia.com/default/topic/1049448/jetson-nano/quick-build-guide-for-visual-studio-code-on-the-nano/
 #
 # Urs Utzinger, Summer 2019
 ############################################################################33
+
+# Microsoft
+############################
+wget https://github.com/toolboc/vscode/releases/download/1.32.3/code-oss_1.32.3-arm64.deb
+sudo dpkg -i code-oss_1.32.3-arm64.deb
+
+# Headmelted
+############################
+# Install the rep keys and setup
+wget -O script.deb.sh https://packagecloud.io/install/repositories/headmelted/codebuilds/script.deb.sh 
+sudo bash script.deb.sh
+# Run the installation script
+wget -O vscodeInstall.sh https://code.headmelted.com/installers/apt.sh
+sudo bash vscodeInstall.sh
+
+# Donet need to build from scratch
+#############################################################
 
 # Need curl
 sudo apt-get install curl
@@ -17,22 +35,25 @@ curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 
 # Install node version manager
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
 # Follow instuctions to close and open new terminal
 nvm ls-remote
 # Install version compatible with yarn. 
 # When you run yarn in vscode directory it will tell you wich version range is compatible, for me this is working:
-nvm install v10.16.0 # latest Long Term Support version
+nvm install v12.13.0 # latest Long Term Support version
 node --version
 
 # Install packages
+# Make sure your swap is 4 gb
+# Edit sudo gedit /usr/bin/init-zram-swapping and follow zram change description here:
+# https://pysource.com/2019/08/26/install-opencv-4-1-on-nvidia-jetson-nano/
 sudo apt-get update
 sudo apt-get install -y libx11-dev libxkbfile-dev libsecret-1-dev
 sudo apt-get install -y fakeroot npm 
 sudo apt-get install -y yarn
 
 # Clone repo
-git clone https://github.com/Microsoft/vscode.git
+git clone --branch 1.40.0 https://github.com/Microsoft/vscode.git
 cd vscode
 
 # Reduce max_old_space_size

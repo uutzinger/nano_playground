@@ -8,12 +8,12 @@
 git clone https://github.com/google/leveldb
 cd leveldb
 mkdir -p build && cd build
-~/CMake/bin/cmake-gui  .. 
+cmake-gui  .. 
 CMAKE_BUILD_TYPE=Release
-CMAKE_INSTALL_PREFIX=/home/you/usr
+CMAKE_INSTALL_PREFIX=/usr/local
 CMAKE_CXX_FLAGS=-fPIC
 CMAKE_C_FLAGS=-fPIC
-~/CMake/bin/cmake --build .
+cmake --build .
 sudo make install
 sudo ldconfig
 sudo -H pip3 install plyvel

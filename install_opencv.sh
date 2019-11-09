@@ -25,20 +25,21 @@
 #################################################################
 # tesseract Open Source Optical Character Recognition
 #################################################################
-sudo apt-get -y install tesseract-ocr
-sudo apt-get -y install tesseract-ocr-all
+sudo apt-get -y install tesseract-ocr      
+sudo apt-get -y install tesseract-ocr-all  # takes some time
 sudo apt-get -y install libtesseract-dev
 sudo apt-get -y install libtesseract4
-sudo -H pip3 install pyocr
-sudo -H pip  install pyocr
 sudo apt-get -y install yagf
+sudo -H pip3 install pyocr
+sudo -H pip2 install pyocr
 
-#
+#################################################################
 sudo apt-get -y update
 sudo apt-get -y dist-upgrade
 # sudo apt-get -y purge libopencv*
 sudo apt-get -y autoremove
 sudo apt-get update
+#################################################################
 
 #################################################################
 # Patching
@@ -81,27 +82,29 @@ sudo nano /usr/local/cuda/include/cuda_gl_interop.h
 #################################################################
 # Download
 cd ~
-curl -L https://github.com/opencv/opencv/archive/4.1.0.zip -o opencv-4.1.0.zip
-curl -L https://github.com/opencv/opencv_contrib/archive/4.1.0.zip -o opencv_contrib-4.1.0.zip
-unzip opencv-4.1.0.zip 
-unzip opencv_contrib-4.1.0.zip 
+curl -L https://github.com/opencv/opencv/archive/4.1.2.zip -o opencv-4.1.2.zip
+curl -L https://github.com/opencv/opencv_contrib/archive/4.1.2.zip -o opencv_contrib-4.1.2.zip
+unzip opencv-4.1.2.zip
+rm  opencv-4.1.2.zip
+unzip opencv_contrib-4.1.2.zip 
+rm opencv_contrib-4.1.2.zip
 
 # Build
-cd opencv-4.1.0
+cd opencv-4.1.2
 mkdir build
 cd build
 
 #If you compiled new cmake:
-~/CMake/bin/cmake-gui ..
+cmake-gui ..
 # otherwise use:
-cmake ..
+# cmake ..
 ################################################
 # To start run Configure
 # Enable Advanced
 # Set flags below
 # Run Configure until no more errors
 # Finally Generate
-# Ren Generate until no more errors
+# Run Generate until no more errors
 ################################################
 # CMAKE_BUILD_TYPE=RELEASE
 # PROTOBUF_UPDATE_FILES=ON

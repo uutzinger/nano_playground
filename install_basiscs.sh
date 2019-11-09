@@ -99,8 +99,8 @@ sudo apt-get -y install libtclap-dev              #
 # AV
 sudo apt-get install -y libavformat-dev libavutil-dev libavcodec-dev
 sudo apt-get install -y libswscale-dev            # FFMpeg library for image scaling
-sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
-libgstreamer-plugins-good1.0-dev
+sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev 
+sudo apt-get install -y libgstreamer-plugins-good1.0-dev
 sudo apt-get install -y libdc1394-22-dev libxine2-dev
 sudo apt-get install -y libv4l-dev v4l-utils qv4l2 v4l2ucp # video for linux
 sudo apt-get install -y libxvidcore-dev libx264-dev
@@ -120,22 +120,23 @@ sudo apt-get -y install libgflags-dev             #
 sudo apt-get -y install libgoogle-glog-dev        #
 # Extensible Markup Lanugage
 sudo apt-get -y install libxml2-dev libxslt-dev   #
-sudo snap       install libxslt                   #
+sudo snap       install libxslt                   # large download
 
 # Protobuf
-sudo apt-get -y install libprotobuf-dev           #
-sudo apt-get -y install protobuf-compiler         #
+# If  you build latest version dont install here
+#sudo apt-get -y install libprotobuf-dev           #
+#sudo apt-get -y install protobuf-compiler         #
 # String keys to string values
 sudo apt-get -y install libleveldb-dev
 # Compressor Decompressor
-sudo apt-get install libleveldb-dev
+sudo apt-get -y install libleveldb-dev
 # Lighting Memory-Mapped Database (LMDB) developed for the OpenLDAP Project.
-sudo apt-get install liblmdb-dev 
+sudo apt-get -y install liblmdb-dev 
 
 # Scientific Computing
 ######################
 # Intel TBB, Fortran, blatlas
-sudo apt-get install -y libtbb2 libtbb-dev        #
+sudo apt-get -y install libtbb2 libtbb-dev        #
 # NumPy, vector and matrix math
 # BLAS basic linear algebra
 sudo apt-get -y install libopenblas-dev           #
@@ -145,7 +146,7 @@ sudo apt-get -y install liblapack-dev             #
 sudo apt-get -y install liblapacke-dev            #
 sudo apt-get -y install libeigen3-dev             #
 # Boost
-sudo apt-get install --no-install-recommends libboost-dev libboost-all-dev # this is 180MB of stuff
+sudo apt-get -y install --no-install-recommends libboost-dev libboost-all-dev # this is 180MB of stuff
 # HD5 data format
 sudo apt-get -y install libhdf5-dev               # hdf5 file format
 sudo apt-get -y install libhdf5-serial-dev        # hdf5 file format
@@ -159,8 +160,8 @@ sudo apt-get -y install libopenmpi-dev            #
 # leveldb
 # CMake
 # protobuf
-install_leveldb.sh
 install_cmake.sh
+install_leveldb.sh
 install_protobuf.sh
 
 #####################################################################################
@@ -168,91 +169,93 @@ install_protobuf.sh
 #####################################################################################
 # Matrix and Vector calculations
 sudo -H pip3 install -U numpy        # 1.16.4
-sudo -H pip  install -U numpy        # 1.16.4
+sudo -H pip2 install -U numpy        # 1.16.4
 # Plotting library
 sudo -H pip3 install -U matplotlib   # 2.1.1
-sudo -H pip  install -U matplotlib   # 2.2.4
+sudo -H pip2 install -U matplotlib   # 2.2.4
 # SciPy,  mathamtics, science and engineering
 sudo -H pip3 install -U scipy        # 1.3
-sudo -H pip  install -U scipy        # 1.2.2
+sudo -H pip2 install -U scipy        # 1.2.2
 # Data Analysis
 sudo -H pip3 install -U pandas       # 0.24.2
-sudo -H pip  install -U pandas       # 0.24.2
+sudo -H pip2 install -U pandas       # 0.24.2
 # Symbolic math
 sudo -H pip3 install -U sympy        # 1.1.1
-sudo -H pip  install -U sympy        # 1.0.0
+sudo -H pip2 install -U sympy        # 1.0.0
 # Message Passaging Interface
 sudo -H pip3 install -U mpi4py       # 3.0.1
-sudo -H pip  install -U mpi4py       # 3.0.1
+sudo -H pip2 install -U mpi4py       # 3.0.1
 # Pillow, python imaging library
-sudo -H pip3 install pillow==5.4.1   # 5.4.1
-sudo -H pip  install pillow==5.4.1   # 5.4.1
+#sudo -H pip3 install pillow==5.4.1   # 5.4.1
+#sudo -H pip2 install pillow==5.4.1   # 5.4.1
+sudo -H pip3 install -U pillow   # 
+sudo -H pip2 install -U pillow   # 
 # Extensible Markup Lanugage
 sudo -H pip3 install -U lxml         # 4.2.1
-sudo -H pip  install -U lxml         # 4.2.1
+sudo -H pip2 install -U lxml         # 4.2.1
 # python testing
 sudo -H pip3 install -U nose         # 1.3.7
-sudo -H pip  install -U nose         # 1.3.7
+sudo -H pip2 install -U nose         # 1.3.7
 # protocol buffer
-sudo -H pip3 install -U protobuf     # 3.8.0
-sudo -H pip  install -U protobuf     # 3.8.0
+#sudo -H pip3 install -U protobuf     # 3.8.0
+#sudo -H pip2 install -U protobuf     # 3.8.0
 # Jetson I/O header support
 sudo -H pip3 install -U Jetson.GPIO  # 0.1.3
-sudo -H pip  install -U Jetson.GPIO  # Jetson General Purpose IO (python support for jetson header pins)
+sudo -H pip2 install -U Jetson.GPIO  # Jetson General Purpose IO (python support for jetson header pins)
 # Python to C compiler
 sudo -H pip3 install -U Cython       # 0.29.10
-sudo -H pip  install -U Cython       # python to C compiler
+sudo -H pip2 install -U Cython       # python to C compiler
 # Misc
 sudo -H pip3 install -U testresources # 2.0.1
-sudo -H pip  install -U testresources # 2.01
+sudo -H pip2 install -U testresources # 2.01
 sudo -H pip3 install -U h5py         # 1.16.4 hdf5 datasets
-sudo -H pip  install -U h5py         # 1.16.4 hdf5 datasets
+sudo -H pip2 install -U h5py         # 1.16.4 hdf5 datasets
 #
 sudo -H pip3 install grpcio          # 1.21.1 universal RPC framework
-sudo -H pip  install grpcio          # 1.21.1 universal RPC framework
+sudo -H pip2 install grpcio          # 1.21.1 universal RPC framework
 sudo -H pip3 install absl-py         # 0.7.1 building applications
-sudo -H pip  install absl-py         # building applications
+sudo -H pip2 install absl-py         # building applications
 sudo -H pip3 install py-cpuinfo      # 5.0.0 CPU info
-sudo -H pip  install py-cpuinfo      # CPU info
+sudo -H pip2 install py-cpuinfo      # CPU info
 sudo -H pip3 install psutil          # 5.6.2 system monitoring
-sudo -H pip  install psutil          # system monitoring
+sudo -H pip2 install psutil          # system monitoring
 sudo -H pip3 install portpicker      # 1.3.1 finding unused network ports
-sudo -H pip  install portpicker      # finding unused network ports
+sudo -H pip2 install portpicker      # finding unused network ports
 sudo -H pip3 install six             # 1.12.0 python 2 to 3 smoothing transition
-sudo -H pip  install six             # python 2 to 3 smoothing transition
+sudo -H pip2 install six             # python 2 to 3 smoothing transition
 sudo -H pip3 install mock            # 3.0.5 mock object library
-sudo -H pip  install mock            # mock object library
+sudo -H pip2 install mock            # mock object library
 sudo -H pip3 install requests        # 2.22.0 deals with http requests
-sudo -H pip  install requests        # deals with http requests
+sudo -H pip2 install requests        # deals with http requests
 sudo -H pip3 install gast            # abstract syntaxt tree
-sudo -H pip  install gast            # 0.2.2 abstract syntaxt tree
+sudo -H pip2 install gast            # 0.2.2 abstract syntaxt tree
 sudo -H pip3 install astor           # easy manipulation of python source via AST
-sudo -H pip  install astor           # 0.8.0 easy manipulation of python source via AST
+sudo -H pip2 install astor           # 0.8.0 easy manipulation of python source via AST
 sudo -H pip3 install termcolor       # 1.1.0 terminal printing in color
-sudo -H pip  install termcolor       # terminal printing in color
+sudo -H pip2 install termcolor       # terminal printing in color
 sudo -H pip3 install contextlib2     # 0.5.5 utility for with statement context
-sudo -H pip  install contextlib2     # utility for with statement context
+sudo -H pip2 install contextlib2     # utility for with statement context
 sudo -H pip3 install pycocotools     # 2.0.0 tool to work with mscoco dataset
-sudo -H pip  install pycocotools     # tool to work with mscoco dataset
+sudo -H pip2 install pycocotools     # tool to work with mscoco dataset
 sudo -H pip3 install scikit-learn    # 0.21.2 takes time, 20mins
-sudo -H pip  install scikit-learn    # takes time, 20mins
+sudo -H pip2 install scikit-learn    # takes time, 20mins
 sudo -H pip3 install scikit-image    # 0.15.0 20 mins
-sudo -H pip  install scikit-image    # 0.14.2 20 mins
+sudo -H pip2 install scikit-image    # 0.14.2 20 mins
 sudo -H pip3 install ipython         # 4.2.1 Interactive Python 
-sudo -H pip  install ipython         # 1.7
+sudo -H pip2 install ipython         # 1.7
 #
 sudo -H pip3 install networkx        # 4.4.0 complex network study
-sudo -H pip  install networkx        # 4.4.0
+sudo -H pip2 install networkx        # 4.4.0
 sudo -H pip3 install python-dateutil # 2.6.1 datetime extension
-sudo -H pip  install python-dateutil # 
+sudo -H pip2 install python-dateutil # 
 sudo -H pip3 install python-gflags   # 3.1.2 command line flags processing
-sudo -H pip  install python-gflags   # 3.1.2
+sudo -H pip2 install python-gflags   # 3.1.2
 sudo -H pip3 install pyyaml          # 3.12 YAML is a human friendly data serialization standard for all programming languages
-sudo -H pip  install pyyaml          # 3.12
+sudo -H pip2 install pyyaml          # 3.12
 
 # Jetsons status, jtop lists GPU usage and system information
 git clone https://github.com/rbonghi/jetson_stats.git
-sudo -H pip  install jetson-stats
+sudo -H pip2 install jetson-stats
 sudo -H pip3 install jetson-stats
 
 #sudo apt-get -y install pitivi frei0r-plugins    # video editor

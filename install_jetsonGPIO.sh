@@ -11,5 +11,5 @@ sudo python3 setup.py install
 sudo groupadd -f -r gpio
 sudo usermod -a -G gpio uutzinger
 sudo cp /opt/nvidia/jetson-gpio/etc/99-gpio.rules /etc/udev/rules.d/
-udo udevadm control --reload-rules && sudo udevadm trigger
+sudo udevadm control --reload-rules && sudo udevadm trigger
 
