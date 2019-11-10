@@ -122,13 +122,12 @@ sudo apt-get -y install libgoogle-glog-dev        #
 sudo apt-get -y install libxml2-dev libxslt-dev   #
 sudo snap       install libxslt                   # large download
 
+# Fast compression/decompression libnrary
+sudo apt-get -y install libsnappy-dev 
 # Protobuf
-# If  you build latest version dont install here
-#sudo apt-get -y install libprotobuf-dev           #
-#sudo apt-get -y install protobuf-compiler         #
+sudo apt-get -y install libprotobuf-dev           #
+sudo apt-get -y install protobuf-compiler         #
 # String keys to string values
-sudo apt-get -y install libleveldb-dev
-# Compressor Decompressor
 sudo apt-get -y install libleveldb-dev
 # Lighting Memory-Mapped Database (LMDB) developed for the OpenLDAP Project.
 sudo apt-get -y install liblmdb-dev 

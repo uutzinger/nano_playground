@@ -8,7 +8,7 @@
 #
 # Caution
 # caffe depends on leveldb and if leveldb is built from source 
-# the -fPIC compiler flag is necessary.
+# the -fPIC compiler flag is necessary for the leveldb build
 #
 # Urs Utzinger, Summer 2019
 #################################################################
@@ -41,12 +41,14 @@ sudo apt build-dep caffe-cuda
 #  python3-skimage 
 #  python3-skimage-lib
 
+
+# This is arelady in installBasiscs.sh
+#
 #sudo apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler
 #sudo apt-get install --no-install-recommends libboost-all-dev
 #sudo apt-get install libatlas-base-dev 
 #sudo apt-get install libopenblas-dev 
 #sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
-
 ## glog
 #wget https://github.com/google/glog/archive/v0.3.3.tar.gz
 #tar zxvf v0.3.3.tar.gz
@@ -78,14 +80,14 @@ cd caffe
 
 # Modify the standard Makefile
 ###############################
-nano Makefile
+gedit Makefile
 # -LIBRARIES += glog gflags protobuf boost_system boost_filesystem m
 # +LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial
 
 ################################
 # Modify the example config file
 ################################
-nano Makefile.config.example
+gedit Makefile.config.example
 # -# USE_CUDNN := 1
 # +USE_CUDNN := 1
 # 
@@ -140,11 +142,12 @@ mkdir build
 cd build
 cmake-gui ..
 # Configure
+# CMAKE_CXX_FLAGS -fPIC
+# CMAKE_BUILD_TYPE Release
 # Generate
-make all
-make install
+make all -j4
+sudo make install
 make runtest # needs fan and 20W power supply;-)
 # Passed all tests, took an 1 hour to test.
 make pycaffe
 ################################
-

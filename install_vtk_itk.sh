@@ -29,10 +29,15 @@ git rebase origin/master
 # This needs to be done by hand:
 # download VTKData.zip from https://vtk.org/download/
 # and extract content of .ExternalData into vtk/.ExternalData
+wget https://www.vtk.org/files/release/8.2/VTKData-8.2.0.zip
+unzip VTKData-8.2.0.zip
+rm VTKData-8.2.0.zip
+mv -r VTK-8.2.0/.ExternalData/ ~/vtk/
+
 mkdir build
 cd build
 # cmake with GUI , needs cmake-3.10
-~/CMake/bin/cmake-gui -D CUDACXX=/usr/local/cuda/bin/nvcc ..
+cmake-gui -D CUDACXX=/usr/local/cuda/bin/nvcc ..
 #
 # MAKE_BUILD_TYPE Release
 # VTK_USE_LARGE_DATA
