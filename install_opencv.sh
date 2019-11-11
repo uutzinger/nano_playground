@@ -124,6 +124,7 @@ cmake-gui ..
 # search TBB in cmake-gui window, then
 ########################
 # WITH_TBB=ON
+# In caser this does not autopopulate:
 #TBB DIR /home/uutzinger/tbb
 #ENV INCLUDE /home/uutzinger/tbb
 #LIBRARY ENV /home/uutzinger/tbb/build/linux_aarch64_gcc_cc7.4.0_libc2.27_kernel4.9.140_release/libtbb.so
@@ -191,8 +192,32 @@ sudo make install
 # sudo apt-get -y install python-opencv python3-opencv
 sudo ldconfig
 
-python3 -c 'import cv2; print("python3 cv2 version: %s" % cv2.__version__)'
+
+#Policy CMP0072 is not set: FindOpenGL prefers GLVND by default when
+#  available.  Run "cmake --help-policy CMP0072" for policy details.  Use the
+#  cmake_policy command to set the policy and suppress this warning.
+#
+#  FindOpenGL found both a legacy GL library:#
+#
+#    OPENGL_gl_LIBRARY: /usr/lib/aarch64-linux-gnu/libGL.so
+#
+#  and GLVND libraries for OpenGL and GLX:
+#
+#    OPENGL_opengl_LIBRARY: /usr/lib/aarch64-linux-gnu/libOpenGL.so
+#    OPENGL_glx_LIBRARY: /usr/lib/aarch64-linux-gnu/libGLX.so
+#
+#  OpenGL_GL_PREFERENCE has not been set to "GLVND" or "LEGACY", so for
+#  compatibility with CMake 3.10 and below the legacy GL library will be used.
+#
+#
+# Could NOT find JNI (missing: JAVA_AWT_LIBRARY JAVA_JVM_LIBRARY JAVA_INCLUDE_PATH JAVA_INCLUDE_PATH2 JAVA_AWT_INCLUDE_PATH) 
+#
+#-- VTK is not found. Please set -DVTK_DIR in CMake to VTK build directory, or to VTK install subdirectory with VTKConfig.cmake file
+#
+#-- Caffe:   NO
+
 python2 -c 'import cv2; print("python2 cv2 version: %s" % cv2.__version__)'
+python3 -c 'import cv2; print("python3 cv2 version: %s" % cv2.__version__)'
 
 #################################################################
 # libvisionworks

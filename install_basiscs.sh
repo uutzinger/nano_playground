@@ -99,8 +99,8 @@ sudo apt-get -y install libtclap-dev              #
 # AV
 sudo apt-get install -y libavformat-dev libavutil-dev libavcodec-dev
 sudo apt-get install -y libswscale-dev            # FFMpeg library for image scaling
-sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev 
-sudo apt-get install -y libgstreamer-plugins-good1.0-dev
+sudo apt-get install -y gstreamer1.0-tools gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav
+sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-good1.0-dev libgstreamer-plugins-bad1.0-dev
 sudo apt-get install -y libdc1394-22-dev libxine2-dev
 sudo apt-get install -y libv4l-dev v4l-utils qv4l2 v4l2ucp # video for linux
 sudo apt-get install -y libxvidcore-dev libx264-dev

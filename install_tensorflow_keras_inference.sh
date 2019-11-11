@@ -9,10 +9,8 @@
 ####################################################################
 
 # Tensorflow
-sudo -H pip2 install --extra-index-url https://developer.download.nvidia.com/compute/redist/jp/v42 tensorflow-gpu==1.14.0+nv19.10 --user
+#sudo -H pip2 install --extra-index-url https://developer.download.nvidia.com/compute/redist/jp/v42 tensorflow-gpu==1.14.0+nv19.10 --user
 sudo -H pip3 install --extra-index-url https://developer.download.nvidia.com/compute/redist/jp/v42 tensorflow-gpu==1.14.0+nv19.10 --user
-
- WARNING: The script markdown_py is installed in '/root/.local/bin' which is not on PATH.
 
 # pyTorch 1.3.0
 #
@@ -20,27 +18,28 @@ sudo -H pip3 install --extra-index-url https://developer.download.nvidia.com/com
 # https://devtalk.nvidia.com/default/topic/1049071/jetson-nano/pytorch-for-jetson-nano-version-1-3-0-now-available/
 
 wget https://nvidia.box.com/shared/static/6t52xry4x2i634h1cfqvc9oaoqfzrcnq.whl -O torch-1.3.0-cp27-cp27mu-linux_aarch64.whl
-pip2 install torch-1.3.0-cp27-cp27mu-linux_aarch64.whl
+sudo -H pip2 install torch-1.3.0-cp27-cp27mu-linux_aarch64.whl
 #
 wget https://nvidia.box.com/shared/static/phqe92v26cbhqjohwtvxorrwnmrnfx1o.whl -O torch-1.3.0-cp36-cp36m-linux_aarch64.whl
-pip3 install numpy torch-1.3.0-cp36-cp36m-linux_aarch64.whl
+sudo -H pip3 install numpy torch-1.3.0-cp36-cp36m-linux_aarch64.whl
 
 # pytorch vision v0.5.0
 #
-#sudo -H pip2install protobuf --upgrade 
+#sudo -H pip2 install protobuf --upgrade 
 #sudo -H pip3 install protobuf --upgrade 
 #
 sudo -H pip2 install setuptools --upgrade
 sudo -H pip3 install setuptools --upgrade
 #
-sudo -H pip2install numpy --upgrade
+sudo -H pip2 install numpy --upgrade
 sudo -H pip3 install numpy --upgrade
 #
 sudo apt-get install libjpeg-dev zlib1g-dev
+#
 git clone --branch v0.5.0 https://github.com/pytorch/vision torchvision   # see below for version of torchvision to download
 cd torchvision
-sudo python3 setup.py install
-sudo python  setup.py install
+sudo -H python3 setup.py install
+sudo -H python2 setup.py install
 cd ../  # attempting to load torchvision from build dir will result in import error
 
 # Test with python shell
@@ -95,13 +94,13 @@ sudo make install
 # Face Recognition Library
 #
 ###############################################################3
-wget http://dlib.net/files/dlib-19.17.tar.bz2 
-tar jxvf dlib-19.17.tar.bz2
-cd dlib-19.17
+wget http://dlib.net/files/dlib-19.18.tar.bz2 
+tar jxvf dlib-19.18.tar.bz2
+cd dlib-19.18
 gedit dlib/cuda/cudnn_dlibapi.cpp
 //forward_algo = forward_best_algo;
 sudo python3 setup.py install
-sudo pip3 install face_recognition
+sudo -H pip3 install face_recognition
 wget -O doorcam.py tiny.cc/doorcam
 python3 doorcam.py
 

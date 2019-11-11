@@ -71,7 +71,7 @@ git clone http://git.code.sf.net/p/vxl/git vxl
 cd vxl
 git pull
 # ./scripts/setup-for-development.bash
-~/CMake/bin/cmake-gui
+cmake-gui
 # Configure
 # Generate
 make -j4 # takes 15 -20 minutes
