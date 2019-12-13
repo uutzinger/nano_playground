@@ -16,3 +16,7 @@ git apply ffmpeg_nvmpi.patch
 ./configure --enable-nvmpi
 make
 sudo make install
+
+# test on network camera
+ffplay -max_delay 500000 -rtsp_transport udp rtsp://192.168.8.52:8554/unicast
+# core dump dbus
