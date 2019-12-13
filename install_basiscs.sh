@@ -97,11 +97,22 @@ sudo apt-get -y install libtclap-dev              #
 #OpenCV
 #######
 # AV
-sudo apt-get install -y libavformat-dev libavutil-dev libavcodec-dev
-sudo apt-get install -y libswscale-dev            # FFMpeg library for image scaling
+# ffmpeg
+sudo apt-get install -y libavutil-dev --reinstall
+sudo apt-get install -y libswscale-dev --reinstall
+sudo apt-get install -y libswresample-dev --reinstall
+sudo apt-get install -y libavcodec-dev --reinstall
+sudo apt-get install -y libavformat-dev --reinstall
+sudo apt-get install -y libavdevice-dev --reinstall
+sudo apt-get install -y libavfilter-dev --reinstall
+# Gstreamer
 sudo apt-get install -y gstreamer1.0-tools gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav
 sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-good1.0-dev libgstreamer-plugins-bad1.0-dev
+# gst-launch-1.0 -v rtspsrc location=rtsp://192.168.8.52:8554/unicast ! queue ! decodebin ! videoconvert ! xvimagesink
+
+# Other
 sudo apt-get install -y libdc1394-22-dev libxine2-dev
+# V4L2
 sudo apt-get install -y libv4l-dev v4l-utils qv4l2 v4l2ucp # video for linux
 sudo apt-get install -y libxvidcore-dev libx264-dev
 sudo apt-get install -y libjpeg8-dev libjpeg-turbo8-dev libpng-dev libtiff-dev # jpeg, png, tiff
