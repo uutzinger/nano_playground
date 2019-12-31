@@ -5,7 +5,7 @@
 #  make sure you compile it with -fPIC compiler options
 #  see below
 #################################################
-git clone https://github.com/google/leveldb
+git clone --recurse-submodules https://github.com/google/leveldb.git
 cd leveldb
 mkdir -p build && cd build
 cmake-gui  .. 

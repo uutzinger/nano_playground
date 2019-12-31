@@ -5,13 +5,15 @@ cd jetson-ffmpeg
 mkdir build
 cd build
 cmake ..
+# cmake-gui ..
+# MAKE_CXX_FLAGS -fPIC
+# MAKE_C_FLAGS -fPIC
 make
 sudo make install
 sudo ldconfig
 
 # dependencies
 apt install libsdl2-dev # for ffplay
-
 
 git clone git://source.ffmpeg.org/ffmpeg.git -b release/4.2 --depth=1
 cd ffmpeg
@@ -29,11 +31,3 @@ ffplay -max_delay 500000 -rtsp_transport udp "$RTSP_PATH"
 # core dump dbus
 
 gst-launch-1.0 videotestsrc is-live=true ! video/x-raw, width=1920, height=1080  ! nvoverlaysink
-
-I am testing rtsp cam with ffmpeg.
-
-Initially the following worked gst-launch-1.0 rtspsrc location=rtsp://192.168.8.51:8554/unicast latency=100 ! decodebin ! nveglglessink
-
-When building ffmpeg the fftools/ffplay is not built. What options 
-or changes are needed so that ffplayh is created.
-ffplay however is installed in /usr/bin/ffplay but its not part of 
