@@ -52,21 +52,21 @@ def running_on_jetson_nano():
 #            )
 
 
-# My Camera can:
+# My USB Camera has following options:
 #video/x-raw, format=(string)YUY2, width=(int)1920, height=(int)1080, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)6/1; 
 #video/x-raw, format=(string)YUY2, width=(int)1280, height=(int)1024, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)6/1; 
-#video/x-raw, format=(string)YUY2, width=(int)1280, height=(int)720, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)9/1; 
-#ideo/x-raw, format=(string)YUY2, width=(int)1024, height=(int)768, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)6/1; 
-#ideo/x-raw, format=(string)YUY2, width=(int)800, height=(int)600, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)20/1; 
-#video/x-raw, format=(string)YUY2, width=(int)640, height=(int)480, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)30/1; 
-#video/x-raw, format=(string)YUY2, width=(int)320, height=(int)240, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)30/1; 
+#video/x-raw, format=(string)YUY2, width=(int)1280, height=(int)720,  pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)9/1; 
+#video/x-raw, format=(string)YUY2, width=(int)1024, height=(int)768,  pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)6/1; 
+#video/x-raw, format=(string)YUY2, width=(int)800,  height=(int)600,  pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)20/1; 
+#video/x-raw, format=(string)YUY2, width=(int)640,  height=(int)480,  pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)30/1; 
+#video/x-raw, format=(string)YUY2, width=(int)320,  height=(int)240,  pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)30/1; 
 #image/jpeg, width=(int)1920, height=(int)1080, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)30/1; 
 #image/jpeg, width=(int)1280, height=(int)1024, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)30/1; 
-#image/jpeg, width=(int)1280, height=(int)720, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)60/1;
-#image/jpeg, width=(int)1024, height=(int)768, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)30/1; 
-#image/jpeg, width=(int)800, height=(int)600, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)60/1; 
-#image/jpeg, width=(int)640, height=(int)480, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)61612/513; 
-#image/jpeg, width=(int)320, height=(int)240, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)61612/513
+#image/jpeg, width=(int)1280, height=(int)720,  pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)60/1;
+#image/jpeg, width=(int)1024, height=(int)768,  pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)30/1; 
+#image/jpeg, width=(int)800,  height=(int)600,  pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)60/1; 
+#image/jpeg, width=(int)640,  height=(int)480,  pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)61612/513; 
+#image/jpeg, width=(int)320,  height=(int)240,  pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)61612/513;
 
 # Test capability of your camera:
 # v4l2-ctl --list-formats-ext --device=0
@@ -82,8 +82,8 @@ def get_jetson_gstreamer_source():
     """
     return (
         'v4l2src device=/dev/video0 ! image/jpeg, width=(int)640, height=(int)480, type=video, framerate=(fraction)61612/513 ! ' + # sink
-        ' jpegdec ! ' +                                                                                                                                         # decode jpeg image
-        'videoconvert ! video/x-raw, format=(string)BGR ! appsink'
+        ' jpegdec ! ' +                                                                                                            # decode jpeg image
+        'videoconvert ! video/x-raw, format=(string)BGR ! appsink'                                                                 # convert to opencv format
         )
 
 def register_new_face(face_encoding, face_image):
@@ -98,9 +98,12 @@ def register_new_face(face_encoding, face_image):
         "first_seen": datetime.now(),
         "first_seen_this_interaction": datetime.now(),
         "last_seen": datetime.now(),
+        "registrations": [datetime.now()],
         "seen_count": 1,
         "seen_frames": 1,
         "face_image": face_image,
+        "First": "Jane",
+        "Last": "Doe",
     })
 
 
@@ -141,6 +144,7 @@ def lookup_known_face(face_encoding):
         if datetime.now() - metadata["first_seen_this_interaction"] > timedelta(minutes=5):
             metadata["first_seen_this_interaction"] = datetime.now()
             metadata["seen_count"] += 1
+            metadata["registrations"].append(datetime.now())
 
     return metadata
 
@@ -258,7 +262,3 @@ def main_loop():
 if __name__ == "__main__":
     load_known_faces()
     main_loop()
-
-
-
-

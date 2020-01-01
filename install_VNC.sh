@@ -15,5 +15,5 @@ gsettings set org.gnome.Vino vnc-password $(echo -n 'thepassword'|base64)
 
 # Reboot the system so that the settings take effect
 sudo reboot
-vino-preferences
+#vino-preferences
 
