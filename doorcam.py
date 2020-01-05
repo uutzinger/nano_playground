@@ -38,18 +38,18 @@ def running_on_jetson_nano():
 
 ## On board CSI camera
 ##
-#def get_jetson_gstreamer_source(capture_width=1280, capture_height=720, display_width=1280, display_height=720, framerate=30, flip_method=0):
-#    """
-#    Return an OpenCV-compatible video source description that uses gstreamer to capture video from the camera on a Jetson Nano
-#    """
-#    return (
-#            f'nvarguscamerasrc ! video/x-raw(memory:NVMM), ' +
-#            f'width=(int){capture_width}, height=(int){capture_height}, ' +
-#            f'format=(string)NV12, framerate=(fraction){framerate}/1 ! ' +
-#            f'nvvidconv flip-method={flip_method} ! ' +
-#            f'video/x-raw, width=(int){display_width}, height=(int){display_height}, format=(string)BGRx ! ' +
-#            'videoconvert ! video/x-raw, format=(string)BGR ! appsink'
-#            )
+def get_jetson_gstreamer_source(capture_width=1280, capture_height=720, display_width=1280, display_height=720, framerate=120, flip_method=0):
+    """
+    Return an OpenCV-compatible video source description that uses gstreamer to capture video from the camera on a Jetson Nano
+    """
+    return (
+            f'nvarguscamerasrc ! video/x-raw(memory:NVMM), ' +
+            f'width=(int){capture_width}, height=(int){capture_height}, ' +
+            f'format=(string)NV12, framerate=(fraction){framerate}/1 ! ' +
+            f'nvvidconv flip-method={flip_method} ! ' +
+            f'video/x-raw, width=(int){display_width}, height=(int){display_height}, format=(string)BGRx ! ' +
+            'videoconvert ! video/x-raw, format=(string)BGR ! appsink'
+            )
 
 
 # My USB Camera has following options:
@@ -76,15 +76,15 @@ def running_on_jetson_nano():
 # gst-launch-1.0 v4l2src device=/dev/video0 ! image/jpeg,             width=320, height=240, type=video, framerate=61612/513 ! jpegdec ! xvimagesink
 # gst-launch-1.0 v4l2src device=/dev/video0 ! image/jpeg,             width=1280,height=720, type=video, framerate=61612/513 ! jpegdec ! videoconvert ! video/x-raw, format=BGR ! xvimagesink
 
-def get_jetson_gstreamer_source():
-    """
-    Return an OpenCV-compatible video source description that uses gstreamer to capture video from the camera on a Jetson Nano
-    """
-    return (
-        'v4l2src device=/dev/video0 ! image/jpeg, width=(int)640, height=(int)480, type=video, framerate=(fraction)61612/513 ! ' + # sink
-        ' jpegdec ! ' +                                                                                                            # decode jpeg image
-        'videoconvert ! video/x-raw, format=(string)BGR ! appsink'                                                                 # convert to opencv format
-        )
+#def get_jetson_gstreamer_source():
+#    """
+#    Return an OpenCV-compatible video source description that uses gstreamer to capture video from the camera on a Jetson Nano
+#    """
+#    return (
+#        'v4l2src device=/dev/video0 ! image/jpeg, width=(int)1080, height=(int)720, type=video, framerate=(fraction)61612/513 ! ' + # sink
+#        ' jpegdec ! ' +                                                                                                            # decode jpeg image
+#        'videoconvert ! video/x-raw, format=(string)BGR ! appsink'                                                                 # convert to opencv format
+#        )
 
 def register_new_face(face_encoding, face_image):
     """
