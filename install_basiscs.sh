@@ -214,6 +214,8 @@ sudo -H pip3 install python-dateutil # 2.6.1  # datetime extension
 sudo -H pip3 install python-gflags   # 3.1.2  # command line flags processing
 sudo -H pip3 install pyyaml          # 3.12   # YAML is a human friendly data serialization standard for all programming languages
 
+sudo -H pip3 install v4l2            # 0.2
+
 # ZeroMQ, imageZeroMQ
 sudo -H pip3 install pyzmq           # 18.1.1
 sudo -H pip3 install imutils         #
