@@ -1,7 +1,7 @@
 ###############################################################################
-# CSi video capture on Jetson Nano
+# CSi video capture on Jetson Nano using gstreamer
 # Urs Utzinger
-# 2019
+# 2020
 ###############################################################################
 
 ###############################################################################
@@ -11,7 +11,6 @@
 # Multi Threading
 from threading import Thread
 from threading import Lock
-from threading import Event
 
 #
 import logging
@@ -20,10 +19,11 @@ import time
 # Open Computer Vision
 import cv2
 
-# Camera    
+# Camera
+from v4l2 import *
 
 # Bucket Vision
-from configs       import configs
+from configs   import configs
 
 ###############################################################################
 # Video Capture
@@ -38,6 +38,7 @@ class CSICapture(Thread):
     # Opens Capture Device and Sets Capture Properties
     def __init__(self, camera_num int = 0, res: Resolution = None, 
                  exposure: float = None):
+
         # initilize
         self.logger = logging.getLogger("CSICapture{}".format(camera_num))
 
@@ -46,13 +47,20 @@ class CSICapture(Thread):
         if exposure is not None: self._exposure   = exposure
         else:                    self._exposure   = configs['exposure']
         if res is not None:      self._camera_res = res
-        else:                    self._camera_res = (configs['camera_res'])
+        else:                    self._camera_res = configs['camera_res']
+        self._capture_width                       = self._camera_res[0] 
+        self._capture_height                      = self._camera_res[1]
+        self._display_res                         = configs['output_res']
+        self._display_width                       = self._display_res[0]
+        self._display_height                      = self._display_res[1]
+        self._framerate                           = configs['fps']
+        self._flip_method                         = configs['flip']
+        self._autoexposure                        = configs['autoexposure']
 
-        # Threading Locks, Events
-        self.capture_lock = Lock()
-        self.frame_lock   = Lock()
+        # Threading Locks
+        self.capture_lock    = Lock()
+        self.frame_lock      = Lock()
         self.stopped         = True
-        self.new_frame_event = Event()
 
         # open up the camera
         self._open_capture()
@@ -63,42 +71,129 @@ class CSICapture(Thread):
         self.stopped   = False
 
         Thread.__init__(self)
-        
+
+    def gstreamer_pipeline(
+        capture_width=1920, capture_height=1080,
+        display_width=1280, display_height=720,
+        framerate=30, exposure_time= 5, # ms
+        flip_method=0):
+
+        exposure_time = exposure_time * 1000000 #ms to ns
+        exp_time_str = '"' + str(exposure_time) + ' ' + str(exposure_time) + '"'
+
+        return (
+            'nvarguscamerasrc '
+            'name="NanoCam" '
+            'do-timestamp=true '
+            'timeout=0 '                               # 0 - 2147483647
+            'blocksize=-1 '                            # block size in bytes
+            'num-buffers=-1 '                          # -1..2147483647 (-1=ulimited) num buf before sending EOS
+            'sensor-mode=-1 '                          # -1..255, IX279 0(3264x2464,21fps),1 (3264x1848,28),2(1080p.30),3(720p,60),4(=720p,120)
+            'tnr-strength=-1 '                         # -1..1
+            'tnr-mode=1 '                              # 0,1,2
+            #'ee-mode=0'                                # 0,1,2
+            #'ee-strength=-1 '                          # -1..1
+            'aeantibanding=1 '                         # 0..3, off,auto,50,60Hz
+            'bufapi-version=false '                    # new buffer api
+            'maxperf=true '                            # max performance
+            'silent=true '                             # verbose output
+            'saturation=1 '                            # 0..2
+            'wbmode=1 '                                # white balance mode, 0..9 0=off 1=auto
+            'awblock=false '                           # auto white balance lock
+            'aelock=true '                             # auto exposure lock
+            'exposurecompensation=0 '                  # -2..2
+            'exposuretimerange=%s '                    # "13000 683709000"
+            'gainrange="1.0 10.625" '                  # "1.0 10.625"
+            'ispdigitalgainrange="1 8" '               # "1 8"
+            #
+            '! video/x-raw(memory:NVMM), '
+            'width=(int)%d, '
+            'height=(int)%d, '
+            'format=(string)NV12, '
+            'framerate=(fraction)%d/1 '
+            #
+            '! nvvidconv flip-method=%d '               # 0=norotation, 1=ccw90deg, 2=rotation180, 3=cw90, 4=horizontal, 5=uprightdiagonal flip, 6=vertical, 7=uperleft flip
+            '! video/x-raw, width=(int)%d, height=(int)%d, format=(string)BGRx '
+            #
+            '! videoconvert '
+            '! video/x-raw, format=(string)BGR '
+            #
+            '! appsink'
+            % (
+                exp_time_str,
+                capture_width,
+                capture_height,
+                framerate,
+                flip_method,
+                display_width,
+                display_height,
+            )
+        )
+
+    def gstreamer_pipeline_auto(
+        capture_width=1920, capture_height=1080,
+        display_width=1280, display_height=720,
+        framerate=30,
+        flip_method=0):
+
+        return (
+            'nvarguscamerasrc '
+            'name="NanoCam" '
+            'do-timestamp=true '
+            #
+            '! video/x-raw(memory:NVMM), '
+            'width=(int)%d, '
+            'height=(int)%d, '
+            'format=(string)NV12, '
+            'framerate=(fraction)%d/1 '
+            #
+            '! nvvidconv flip-method=%d '               # 0=norotation, 1=ccw90deg, 2=rotation180, 3=cw90, 4=horizontal, 5=uprightdiagonal flip, 6=vertical, 7=uperleft flip
+            '! video/x-raw, width=(int)%d, height=(int)%d, format=(string)BGRx '
+            #
+            '! videoconvert '
+            '! video/x-raw, format=(string)BGR '
+            #
+            '! appsink'
+            % (
+                capture_width,
+                capture_height,
+                framerate,
+                flip_method,
+                display_width,
+                display_height,
+            )
+        )
 
     def _open_capture(self):
         """Open up the camera so we can begin capturing frames"""
+        if self._autoexposure > 0
+            capture = cv2.VideoCapture(gstreamer_pipeline_auto(
+                capture_width  = self._capture_width, 
+                capture_height = self._capture_height,
+                display_width  = self._display_width,
+                display_height = self._display_height,
+                framerate      = self._framerate,
+                flip_method    = self._flip_method ), 
+                cv2.CAP_GSTREAMER)
+        else:
+            capture = cv2.VideoCapture(gstreamer_pipeline(
+            capture_width  = self._capture_width, 
+            capture_height = self._capture_height,
+            display_width  = self._display_width,
+            display_height = self._display_height,
+            framerate      = self._framerate,
+            exposure_time  = self._exposure,
+            flip_method    = self._flip_method ), 
+            cv2.CAP_GSTREAMER)
 
-        # PiCamera
-        self.capture      = PiCamera(self.camera_num)
-        self.capture_open = not self.capture.closed
+        self.capture_open = self.capture.isOpened()
 
         if self.capture_open:
             # Appply Settings to camera
-            self.resolution = self._camera_res
-            self.rawCapture = PiRGBArray(self.capture, size=self.resolution)
-            self.exposure   = self._exposure
-            self.fps = configs['fps']
-            # Turn Off Auto Features
-            self.awb_mode     = 'off'            # No auto white balance
-            self.awb_gains    = (1,1)            # Gains for red and blue are 1
-            self.brightness   = 50               # No change in brightness
-            self.contrast     = 0                # No change in contrast
-            self.drc_strength = 'off'            # Dynamic Range Compression off
-            self.clock_mode   = 'raw'            # Frame numbers since opened camera
-            self.color_effects= None             # No change in color
-            self.fash_mode    = 'off'            # No flash
-            self.image_denoise= False            # In vidoe mode
-            self.image_effect = 'none'           # No image effects
-            self.sharpness    = 0                # No changes in sharpness
-            self.video_stabilization = False     # No image stablization
-            self.iso          = 100              # Use ISO 100 setting, smallest analog and digital gains
-            self.exposure_mode= 'off'            # No automatic exposure control
-            self.exposure_compensation = 0       # No automatic expsoure controls compensation
         else: 
-            Table.writeValue("Camera{}Status".format(camera_num), 
+            self.writeValue("Camera{}Status".format(camera_num), 
                              "Failed to open camera {}!".format(camera_num),
-                             logger=self.logger, net_table = self.net_table,
-                             level=logging.CRITICAL)
+                             logger=self.logger, level=logging.CRITICAL)
 
     #
     # Thread routines #################################################
@@ -110,15 +205,7 @@ class CSICapture(Thread):
 
     def start(self):
         """ set the thread start conditions """
-        try:
-            self.stream = self.capture.capture_continuous(self.rawCapture, 
-                                                          format="bgr", use_video_port=True)
-        except:
-            Table.writeValue("Camera{}Status".format(self.camera_num), 
-                             "Failed to create camera stream {}!".format(self.camera_num), 
-                             logger=self.logger, net_table = self.net_table,
-                             level=logging.CRITICAL)
-
+        self.stopped = False
         T = Thread(target=self.update, args=())
         T.daemon = True # run in background
         T.start()
@@ -129,35 +216,30 @@ class CSICapture(Thread):
         last_fps_time = time.time()
         last_exposure_time = last_fps_time
         num_frames = 0
-        for f in self.stream: 
+        while not self.stopped:
             current_time = time.time()
             # FPS calculation
-            if (current_time -  last_fps_time) >= 5.0:
-                Table.writeValue("CaptureFPS", num_frames/5.0, net_table = self.net_table, logger=self.logger)
+            if (current_time - last_fps_time) >= 5.0: # update frame rate every 5 secs
+                Table.writeValue("CaptureFPS", num_frames/5.0, logger=self.logger)
                 num_frames = 0
                 last_fps_time = current_time
-            # Adjust exposure if requested via network tables
-            if (current_time - last_exposure_time) >= 1: #no more than once per second
-                last_exposure_time = current_time
-                try:
-                    if self._exposure != self.net_table.getEntry("Exposure").value: 
-                        self.exposure = self.net_table.getEntry("Exposure").value
-                except: pass
-            # Get latest img
             with self.capture_lock:
-                img = f.array
-                self.rawCapture.truncate(0)
+                _, img = self.capture.read()
             # set the frame var to the img we just captured
             self.frame = img
             # tell any threads waiting for a new frame that we have one
-            self.new_frame_event.set()
-            self.new_frame_event.clear()
             num_frames += 1
 
             if self.stopped:
-                self.stream.close()
-                self.rawCapture.close()
-                self.capture.close()        
+                self.capture.close()  
+
+    #
+    # Debug routines ##################################################
+    # 
+
+    def writeValue(self, name, value, level=logging.DEBUG, logger: logging):
+        """Debug Message"""
+        logger.log(level, "{}:{}".format(name, value))
 
     #
     # Frame routines ##################################################
@@ -202,21 +284,21 @@ class CSICapture(Thread):
     # 6	    1280x720	16:9	40 - 90 (120*)	Partial	2x2
     # 7	    640x480	    4:3	    40 - 90 (120*)	Partial	2x2
     #
-    # Omnivision OV5647
-    # Mode	Resolution	Aspect 
-    #                   Ratio	Framerate	    FoV	    Binning
-    # 1	    1920x1080	16:9	1 - 30	        Partial	None
-    # 2	    2592x1944	4:3	    1 - 15	        Full	None
-    # 3	    2592x1944	4:3	    1/6 - 1	        Full	None
-    # 4	    1296x972	4:3	    1 - 42	        Full	2x2
-    # 5	    1296x730	16:9	1 - 49	        Full	2x2
-    # 6	    640x480	    4:3	    42 - 60	        Full	4x4
-    # 7	    640x480	    4:3	    60 - 90	        Full	4x4
 
-    # write shutter_speed  sets exposure in microseconds
-    # read  exposure_speed gives actual exposure 
-    # shutter_speed = 0 then auto exposure
-    # framerate determines maximum exposure
+    #cap.get(cv2.CAP_PROP_BRIGHTNESS)
+	#cap.get(cv2.CAP_PROP_CONTRAST)
+	#cap.get(cv2.CAP_PROP_SATURATION)
+	#cap.get(cv2.CAP_PROP_HUE)
+	#cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+	#cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+	#cap.get(cv2.CAP_PROP_FPS)
+
+    #v4l2-ctrl --set-ctrl exposure= 13..683709
+    #v4l2-ctrl --set-ctrl gain= 16..170
+    #v4l2-ctrl --set-ctrl frame_rate= 2000000..120000000
+    #v4l2-ctrl --set-ctrl low_latency_mode=True
+
+    #os.system("v4l2-ctl -c exposure_absolute={} -d {}".format(val,self.camera_num))
 
     # Read properties
 
@@ -252,434 +334,24 @@ class CSICapture(Thread):
 
     # Write
 
-    @resolution.setter
-    def resolution(self, val):
-        if val is None: return
-        if self.capture_open:
-            if len(val) > 1:
-                with self.capture_lock: self.capture.resolution = val
-                Table.writeValue("Width",  val[0], net_table = self.net_table, logger=self.logger)
-                Table.writeValue("Height", val[1], net_table = self.net_table, logger=self.logger)
-                self._resolution = val
-            else:
-                with self.capture_lock: self.capture.resolution = (val, val)
-                Table.writeValue("Width",  val, net_table = self.net_table, logger=self.logger)
-                Table.writeValue("Height", val, net_table = self.net_table, logger=self.logger)
-                self._resolution = (val, val)                    
-        else:
-            Table.writeValue("Camera{}Status".format(self.camera_num), 
-                             "Failed to set Resolution to {}!".format(val), 
-                             logger=self.logger, net_table = self.net_table,
-                             level=logging.CRITICAL)
-
-    @width.setter
-    def width(self, val):
-        if val is None: return
-        val = int(val)
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.resolution = (val, self.capture.resolution[1])
-            Table.writeValue("Width", val, net_table = self.net_table, logger=self.logger)
-        else:
-            Table.writeValue("Camera{}Status".format(self.camera_num),
-                             "Failed to set Width to {}!".format(val), 
-                             logger=self.logger, net_table = self.net_table,
-                             level=logging.CRITICAL)
-
-    @height.setter
-    def height(self, val):
-        if val is None: return
-        val = int(val)
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.resolution = (self.capture.resolution[0], val)
-            Table.writeValue("Height", val, net_table = self.net_table, logger=self.logger)
-        else:
-            Table.writeValue("Camera{}Status".format(self.camera_num),
-                             "Failed to set Height to {}!".format(val), 
-                             logger=self.logger, net_table = self.net_table,
-                             level=logging.CRITICAL)
-
-    @fps.setter
-    def fps(self, val):
-        if val is None: return
-        val = float(val)
-        if self.capture_open:
-            with self.capture_lock: self.capture.framerate = val
-            Table.writeValue("FPS", val, net_table = self.net_table, logger=self.logger)
-        else:
-            Table.writeValue("Camera{}Status".format(self.camera_num), 
-                             "Failed to set Framerate to {}!".format(val), 
-                             logger=self.logger, net_table = self.net_table,
-                             level=logging.CRITICAL)
-
-    @exposure.setter
-    def exposure(self, val):
-        if val is None: return
-        if self.capture_open:
-            with self.capture_lock: self.capture.shutter_speed  = val
-            Table.writeValue("Exposure", val, net_table = self.net_table, logger=self.logger,)
-            self._exposure = self.exposure
-        else:
-            Table.writeValue("Camera{}Status".format(self.camera_num),
-                             "Failed to set Exposure to {}!".format(val),
-                             logger=self.logger, net_table = self.net_table,
-                             level=logging.CRITICAL)
-
-    #
-    # Color Balancing ##################################################
-    #
-    # Cannot set digital and analog gains, set ISO then read the gains.
-    # awb_mode: can be off, auto, sunLight, cloudy, share, tungsten, fluorescent, flash, horizon, default is auto
-    # analog gain: retreives the analog gain prior to digitization
-    # digital gain: applied after conversion, a fraction
-    # awb_gains: 0..8 for red,blue, typical values 0.9..1.9 if awb mode is set to "off:
-
-    # Read
-    @property
-    def awb_mode(self):              
-        if self.capture_open: 
-            return self.capture.awb_mode               
-        else: return float('NaN')
-
-    @property
-    def awb_gains(self):             
-        if self.capture_open: 
-            return self.capture.awb_gains              
-        else: return float('NaN')
-
-    @property
-    def analog_gain(self):           
-        if self.capture_open: 
-            return self.capture.analog_gain           
-        else: return float("NaN")
-
-    @property
-    def digital_gain(self):          
-        if self.capture_open: 
-            return self.capture.digital_gain           
-        else: return float("NaN")
-
-    # Write
-
-    @awb_mode.setter
-    def awb_mode(self, val):
-        if val is None: return
-        if self.capture_open:
-            with self.capture_lock: self.capture.awb_mode  = val
-            Table.writeValue("AWB Mode", val, net_table = self.net_table, logger=self.logger)
-        else:
-            Table.writeValue("Camera{}Status".format(self.camera_num),
-                             "Failed to set AWB Mode to {}!".format(val),
-                             logger=self.logger, net_table = self.net_table,
-                             level=logging.CRITICAL)
- 
-    @awb_gains.setter
-    def awb_gains(self, val):
-        if val is None: return
-        if self.capture_open:
-            if len(val) > 1:
-                with self.capture_lock: self.capture.awb_gains  = val
-                Table.writeValue("AWB Gains", val, net_table = self.net_table, logger=self.logger)
-            else:
-                with self.capture_lock: self.capture.awb_gains = (val, val)
-                Table.writeValue("AWB Gains", (val, val), net_table = self.net_table, logger=self.logger,)
-        else:
-            Table.writeValue("Camera{}Status".format(self.camera_num),
-                             "Failed to set AWB Gains to {}!".format(val), 
-                             logger=self.logger, net_table = self.net_table,
-                             level=logging.CRITICAL)
-
-    # Can not set analog and digital gains, needs special code
-    #@analog_gain.setter
-    #@digital_gain.setter
-
-    #
-    # Intensity and Contrast ###########################################
-    #
-    # brightness 0..100 default 50
-    # contrast -100..100 default is 0
-    # drc_strength is dynamic range compression strength; off, low, medium, high, default off
-    # iso 0=auto, 100, 200, 320, 400, 500, 640, 800, on some cameras iso100 is gain of 1 and iso200 is gain for 2
-    # exposure mode can be off, auto, night, nightpreview, backight, spotlight, sports, snow, beach, verylong, fixedfps, antishake, fireworks, default is auto, off fixes the analog and digital gains
-    # exposure compensation -25..25, larger value gives brighter images, default is 0
-    # meter_mode'average', 'spot', 'backlit', 'matrix'
-
-    # Read
-    @property
-    def brightness(self):            
-        if self.capture_open: 
-            return self.capture.brightness             
-        else: return float('NaN')
-
-    @property
-    def iso(self):                   
-        if self.capture_open: 
-            return self.capture.iso                    
-        else: return float("NaN")
-
-    @property
-    def exposure_mode(self):         
-        if self.capture_open: 
-            return self.capture.exposure_mode          
-        else: return float("NaN")
-
-    @property
-    def exposure_compensation(self): 
-        if self.capture_open: 
-            return self.capture.exposure_compensation  
-        else: return float("NaN")
-
-    @property
-    def drc_strength(self):          
-        if self.capture_open: 
-            return self.capture.drc_strength           
-        else: return float('NaN')
-
-    @property
-    def contrast(self):              
-        if self.capture_open: 
-            return self.capture.contrast               
-        else: return float('NaN')
-
-    # Write
-
-    @brightness.setter
-    def brightness(self, val):
-        if val is None:  return
-        val = int(val)
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.brightness = val
-            Table.writeValue("Brightness", val, net_table = self.net_table, logger=self.logger)
-        else: Table.writeValue("Camera{}Status".format(self.camera_num),
-                               "Failed to set Brightness to {}!".format(val),
-                               logger=self.logger, net_table = self.net_table,
-                               level=logging.CRITICAL)
-
-    @iso.setter
-    def iso(self, val):
-        if val is None: return
-        val = int(val)
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.iso = val
-            Table.writeValue("ISO", val, net_table = self.net_table, logger=self.logger)
-        else: Table.writeValue("Camera{}Status".format(self.camera_num),
-                               "Failed to set ISO to {}!".format(val),
-                               logger=self.logger, net_table = self.net_table,
-                               level=logging.CRITICAL)
-
-    @exposure_mode.setter
-    def exposure_mode(self, val):
-        if val is None: return
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.exposure_mode = val
-            Table.writeValue("Exposure Mode", val, logger=self.logger,)
-        else: Table.writeValue("Camera{}Status".format(self.camera_num),
-                               "Failed to set Exposure Mode to {}!".format(val),
-                               logger=self.logger,
-                               level=logging.CRITICAL)
-
-    @exposure_compensation.setter
-    def exposure_compensation(self, val):
-        if val is None: return
-        val = int(val)
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.exposure_compensation = val
-            Table.writeValue("Exposure Compensation", int(val), net_table = self.net_table, logger=self.logger,)
-        else: Table.writeValue("Camera{}Status".format(self.camera_num),
-                               "Failed to set Exposure Compensation to {}!".format(val),
-                               logger=self.logger, net_table = self.net_table,
-                               level=logging.CRITICAL)
-
-    @drc_strength.setter
-    def drc_strength(self, val):
-        if val is None: return
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.drc_strength = val
-            Table.writeValue("DRC Strength", val, net_table = self.net_table, logger=self.logger,)
-        else: Table.writeValue("Camera{}Status".format(self.camera_num),
-                               "Failed to set DRC Strength to {}!".format(val),
-                               logger=self.logger, net_table = self.net_table,
-                               level=logging.CRITICAL)
-
-    @contrast.setter
-    def contrast(self, val):
-        if val is None: return
-        val = int(val)
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.contrast = val
-            Table.writeValue("Contrast", val, net_table = self.net_table, logger=self.logger)
-        else: Table.writeValue("Camera{}Status".format(self.camera_num),
-                               "Failed to set Contrast to {}!".format(val),
-                               logger=self.logger, net_table = self.net_table,
-                               level=logging.CRITICAL)
-
-    #
-    # Other Effects ####################################################
-    #
-    # flash_mode
-    # clock mode "reset", is relative to start of recording, "raw" is relative to start of camera
-    # color_effects, "None" or (u,v) where u and v are 0..255 e.g. (128,128) gives black and white image
-    # flash_mode 'off', 'auto', 'on', 'redeye', 'fillin', 'torch' defaults is off
-    # image_denoise, True or False, activates the denosing of the image
-    # video_denoise, True or False, activates the denosing of the video recording
-    # image_effect, can be negative, solarize, sketch, denoise, emboss, oilpaint, hatch, gpen, pastel, watercolor, film, blur, saturation, colorswap, washedout, colorpoint, posterise, colorbalance, cartoon, deinterlace1, deinterlace2, default is 'none'
-    # image_effect_params, setting the parameters for the image effects see https://picamera.readthedocs.io/en/release-1.13/api_camera.html
-    # sharpness -100..100 default 0
-    # video_stabilization default is False
-
-    # Read
-    @property
-    def flash_mode(self):            
-        if self.capture_open: 
-            return self.capture.flash_mode             
-        else: return float('NaN')
-
-    @property
-    def clock_mode(self):            
-        if self.capture_open: 
-            return self.capture.clock_mode             
-        else: return float('NaN')
-
-    @property
-    def sharpness(self):             
-        if self.capture_open: 
-            return self.capture.sharpness              
-        else: return float('NaN')
-
-    @property
-    def color_effects(self):         
-        if self.capture_open: 
-            return self.capture.color_effects           
-        else: return float('NaN')
-
-    @property
-    def image_effect(self):          
-        if self.capture_open: 
-            return self.capture.image_effect           
-        else: return float('NaN')
-
-    @property
-    def image_denoise(self):         
-        if self.capture_open: 
-            return self.capture.image_denoise          
-        else: return float('NaN')
-
-    @property
-    def video_denoise(self):         
-        if self.capture_open: 
-            return self.capture.video_denoise          
-        else: return float('NaN')
-
-    @property
-    def video_stabilization(self):   
-        if self.capture_open: 
-            return self.capture.video_stabilization    
-        else: return float('NaN')
-
-    # Write
-
-    @flash_mode.setter
-    def flash_mode(self, val):
-        if val is None:  return
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.flash_mode = val
-            Table.writeValue("Flash Mode", val), net_table = self.net_table, logger=self.logger)
-        else: Table.writeValue("Camera{}Status".format(self.camera_num),
-                               "Failed to set Flash Mode to {}!".format(val),
-                               logger=self.logger, net_table = self.net_table,
-                               level=logging.CRITICAL)
-
-    @clock_mode.setter
-    def clock_mode(self, val):
-        if val is None:  return
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.clock_mode = val
-            Table.writeValue("Clock Mode", val, logger=self.logger)
-        else: Table.writeValue("Camera{}Status".format(self.camera_num),
-                               "Failed to set Clock Mode to {}!".format(val),
-                               logger=self.logger,
-                               level=logging.CRITICAL)
-
-    @sharpness.setter
-    def sharpness(self, val):
-        if val is None:  return
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.sharpness = val
-            Table.writeValue("Sharpness", val, net_table = self.net_table, logger=self.logger)
-        else: Table.writeValue("Camera{}Status".format(self.camera_num),
-                               "Failed to set Sharpness to {}!".format(val),
-                               logger=self.logger, net_table = self.net_table,
-                               level=logging.CRITICAL)
-
-    @color_effects.setter
-    def color_effects(self, val):
-        if val is None:  return
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.color_effects = val
-            Table.writeValue("Color Effects", val, net_table = self.net_table, logger=self.logger)
-        else: Table.writeValue("Camera{}Status".format(self.camera_num),
-                               "Failed to set Color Effects to {}!".format(val),
-                               logger=self.logger, net_table = self.net_table,
-                               level=logging.CRITICAL)
-
-    @image_effect.setter
-    def image_effect(self, val):
-        if val is None:  return
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.image_effect = val
-            Table.writeValue("Image Effect", val, net_table = self.net_table, logger=self.logger)
-        else: Table.writeValue("Camera{}Status".format(self.camera_num),
-                               "Failed to set Image Effect to {}!".format(val),
-                               logger=self.logger, net_table = self.net_table,
-                               level=logging.CRITICAL)
-
-    @image_denoise.setter
-    def image_denoise(self, val):
-        if val is None:  return
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.image_denoise = val
-            Table.writeValue("Image Denoise", val, net_table = self.net_table, logger=self.logger)
-        else: Table.writeValue("Camera{}Status".format(self.camera_num),
-                               "Failed to set Image Denoise to {}!".format(val),
-                               logger=self.logger, net_table = self.net_table,
-                               level=logging.CRITICAL)
-
-    @video_denoise.setter
-    def video_denoise(self, val):
-        if val is None:  return
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.video_denoise = val
-            Table.writeValue("Video Denoise", val, net_table = self.net_table, logger=self.logger)
-        else: Table.writeValue("Camera{}Status".format(self.camera_num),
-                               "Failed to set Video Denoise to {}!".format(val),
-                               logger=self.logger, net_table = self.net_table,
-                               level=logging.CRITICAL)
-
-    @video_stabilization.setter
-    def video_stabilization(self, val):
-        if val is None:  return
-        if self.capture_open:
-            with self.capture_lock:
-                self.capture.video_stabilization = val
-            Table.writeValue("Video Stablilization", val, net_table = self.net_table, logger=self.logger)
-        else: Table.writeValue("Camera{}Status".format(self.camera_num),
-                               "Failed to set Video Stabilization to {}!".format(val),
-                               logger=self.logger, net_table = self.net_table,
-                               level=logging.CRITICAL)
+	@exposure.setter
+	def exposure(self, val):
+		if val is None:
+			return
+		val = int(val)
+		self._exposure = val
+		if self.cap_open:
+			with self.capture_lock:
+				if os.name == 'nt':
+					# self.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # must disable auto exposure explicitly on some platforms
+					self.cap.set(cv2.CAP_PROP_EXPOSURE, val)
+				else:
+					os.system("v4l2-ctl -c exposure_absolute={} -d {}".format(val,self.camera_num))
+			self.writeValue("Exposure", val)
+		else:
+			self.writeValue("Camera{}Status".format(self.camera_num),
+							"Failed to set exposure to {}!".format(val),
+							level=logging.CRITICAL)
 
 ###############################################################################
 # Testing
@@ -689,7 +361,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
     print("Starting Capture")
-    camera = CSICapture(network_table=FrontCameraTable)
+    camera = CSICapture()
     camera.start()
 
     print("Getting Frames")
