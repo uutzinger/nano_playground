@@ -99,14 +99,14 @@ def gstreamer_pipeline(
             'exposuretimerange='         +
             exp_time_str)
 
-        # Flip options
-        #   0=norotation, 
-        #   1=ccw90deg, 
-        #   2=rotation180, 
-        #   3=cw90, 4=horizontal, 
-        #   5=uprightdiagonal flip, 
-        #   6=vertical, 
-        #   7=uperleft flip
+    # Flip options
+    #   0=norotation, 
+    #   1=ccw90deg, 
+    #   2=rotation180, 
+    #   3=cw90, 4=horizontal, 
+    #   5=uprightdiagonal flip, 
+    #   6=vertical, 
+    #   7=uperleft flip
 
     gstreamer_str = (
     '! video/x-raw(memory:NVMM), '                       +
