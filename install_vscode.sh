@@ -70,6 +70,8 @@ sudo nano /usr/share/code-oss/resources/app/product.json
 #} 
 
 # Reboot
+#############################################################
+sudo apt install ctags
 code-oss
 
 # If menu is missing
@@ -78,6 +80,7 @@ code-oss
 #  Window title bar style
 #  Change  to custom 
 
+# In code-oss install python support from Microsoft
 
 
 

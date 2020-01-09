@@ -9,28 +9,20 @@ import time
 
 def gstreamer_pipeline(
     capture_width=1280, capture_height=720,
-    display_width=1280/1, display_height=720/1,
-    framerate=90, exposure_time= 5, # ms
+    display_width=1280, display_height=720,
+    framerate=60, exposure_time= 5, # ms
     flip_method=0):
 
     exposure_time = exposure_time * 1000000 #ms to ns
     exp_time_str = '"' + str(exposure_time) + ' ' + str(exposure_time) + '"'
 
-    #1280*720  = 921600
-    #1280*720*3=2764800
-
     return (
         'nvarguscamerasrc '
         'name="NanoCam" '
         'do-timestamp=true '
-        'timeout=0 '                               # 0 - 2147483647
-        'blocksize=-1 '                            # block size in bytes
-        'num-buffers=-1 '                          # -1..2147483647 (-1=ulimited) num buf before sending EOS
         'sensor-mode=-1 '                          # -1..255, IX279 0(3264x2464,21fps),1 (3264x1848,28),2(1080p.30),3(720p,60),4(=720p,120)
         'tnr-strength=-1 '                         # -1..1
         'tnr-mode=1 '                              # 0,1,2
-#        'ee-mode=0'                               # 0,1,2
-#        'ee-strength=-1 '                         # -1..1
         'aeantibanding=1 '                         # 0..3, off,auto,50,60Hz
         'bufapi-version=false '                    # new buffer api
         'maxperf=true '                            # max performance
@@ -41,8 +33,6 @@ def gstreamer_pipeline(
         'aelock=true '                             # auto exposure lock
         'exposurecompensation=0 '                  # -2..2
         'exposuretimerange=%s '                    # "13000 683709000"
-        'gainrange="1.0 10.625" '                  # "1.0 10.625"
-        'ispdigitalgainrange="1 8" '             # "1 8"
         #
         '! video/x-raw(memory:NVMM), '
         'width=(int)%d, '
@@ -68,10 +58,7 @@ def gstreamer_pipeline(
         )
     )
 
-
 cap = cv2.VideoCapture(gstreamer_pipeline(), cv2.CAP_GSTREAMER)
-#cap = cv2.VideoCapture(0, apiPreference=cv2.CAP_V4L2)
-#cap = cv2.VideoCapture(0, apiPreference=cv2.CAP_FFMPEG)
 
 if not (cap.isOpened()):
     print("Could not open video device")
@@ -128,13 +115,14 @@ last_fps_time = time.time()
 num_frames = 0
 while(cv2.getWindowProperty("CSI Camera", 0) >= 0):
     ret, frame = cap.read()
-    cv2.imshow('CSI Camera',frame)
-    num_frames += 1
-    current_time = time.time()
-    if (current_time - last_fps_time) >= 5.0: # update frame rate every 5 secs
-        print("CaptureFPS: ", num_frames/5.0)
-        num_frames = 0
-        last_fps_time = current_time
+    if frame is not None:
+        cv2.imshow('CSI Camera',frame)
+        num_frames += 1
+        current_time = time.time()
+        if (current_time - last_fps_time) >= 5.0: # update frame rate every 5 secs
+            print("CaptureFPS: ", num_frames/5.0)
+            num_frames = 0
+            last_fps_time = current_time
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 cap.release()

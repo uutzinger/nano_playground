@@ -6,6 +6,7 @@
 # Drivers for the camera and OpenCV are included in the base image
 
 import cv2
+import v4l2
 
 # gstreamer_pipeline returns a GStreamer pipeline for capturing from the CSI camera
 # Defaults to 1280x720 @ 60fps
@@ -22,8 +23,8 @@ def gstreamer_pipeline(
     exposure_time = exposure_time * 1000000 #ms to ns
     exp_time_str = '"' + str(exposure_time) + ' ' + str(exposure_time) + '"'
 
-https://gstreamer.freedesktop.org/documentation/video4linux2/v4l2src.html?gi-language=c
-
+#https://gstreamer.freedesktop.org/documentation/video4linux2/v4l2src.html?gi-language=c
+# 
     return (
         'v4l2src '
         'device=/dev/video%d '
@@ -73,6 +74,7 @@ v4l2-ctrl --set-ctrl frame_rate= 2000000..120000000
 v4l2-ctrl --set-ctrl low_latency_mode=True
 
 def show_camera():
+    v4l2-controls
     # To flip the image, modify the flip_method parameter (0 and 2 are the most common)
     print(gstreamer_pipeline())
     cap = cv2.VideoCapture(gstreamer_pipeline(), cv2.CAP_GSTREAMER)

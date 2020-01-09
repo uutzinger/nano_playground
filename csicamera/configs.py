@@ -2,25 +2,11 @@ configs = {
     ##############################################
     # Camera Settings
     ##############################################
-    'camera_res'      : (640, 480),     # camera width & height                                      CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT
-                                        # ELP: 320x240
-                                        # Laptop: 1280x720, 640x480, 320x240, 320x160, 160x120 
-    'exposure'        : -4.0,           # CSI camera: 1=100micro seconds, max=frame interval,        CAP_PROP_EXPOSURE
-                                        # ELP camera in seconds max: 1/fps
-                                        # Laptop -4
-    'fps'             : 30,             # CSI: 1/10, 15, 30, 40, 90, 120 overlocked, 180?
-                                        # ELP: 6, 9, 21, 31, 30, 60, 100, 120?                       CAP_PROP_FPS
-                                        # Laptop: 0
-    'fourcc'          : -1,             # MJPG, YUY2, for ELP camera https://www.fourcc.org/         CAP_PROP_FOURCC 
-                                        # Laptop Windows -1
-    'buffersize'      : -1,             # default is 4 for V4L2, max 10,                             CAP_PROP_BUFFERSIZE 
-                                        # Laptop: -1
-    'autoexposure'    : 0,              # CSI: 0=auto, 1=manual, 2=shutter priority, 3=aperture priority, CAP_PROP_AUTO_EXPOSURE
-                                        # ELP: 0.25 manual 0.75 auto
-                                        # Laptop: -1
-    'autowhite'       : 0,              # CSI: 0, 1 bool                                             CAP_PROP_AUTO_WB 
-    'whitetemp'       : 57343,          # CSI min=800 max=6500 step=1 default=57343                  CAP_PROP_WB_TEMPERATURE 
-    'autofocus'       : 0,              # CSI: 0 or 1 bool                                           CAP_PROP_AUTOFOCUS
+    'camera_res'      : (3264, 2464),   # Camera width & height
+                                        # CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT
+    'exposure'        : -1,             # CSI camera: -1,0 = auto, 1 max=frame interval
+                                        # CAP_PROP_EXPOSURE
+    'fps'             : 21,             # CSI: 1/10, 15, 30, 40, 90, 120 overlocked, 180?
     ##############################################
     # Target Recognition
     ##############################################
@@ -28,11 +14,26 @@ configs = {
     ##############################################
     # Target Display
     ##############################################
-    'output_res'      : (320, 240),     # Output resolution 
+    'output_res'      : (1280, 720),    # Output resolution 
     'serverfps'       : 16,             # frame rate for display server
-}
+    'flip'            : 0               # 0=norotation, 
+                                        # 1=ccw90deg, 
+                                        # 2=rotation180, 
+                                        # 3=cw90, 
+                                        # 4=horizontal, 
+                                        # 5=uprightdiagonal flip, 
+                                        # 6=vertical, 
+                                        # 7=uperleft flip
+    }
+
+# 3264 x 2464 FR = 21.0000
+# 3264 x 1848 FR = 28.000001
+# 1920 x 1080 FR = 29.999999
+# 1280 x 720  FR = 120.000005
+# 1280 x 720  FR = 59.999999
 
 ##################################################
 # Capture Options for Sony IX219 CSI camera
 ##################################################
-# 4VL2-ctl
+# 4VL2-ctl -L
+# v4l2-ctl --list-formats-ext

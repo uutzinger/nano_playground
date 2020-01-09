@@ -17,13 +17,8 @@ def gstreamer_pipeline(
     display_width=1280, display_height=720,
     framerate=30, exposure_time= 5, # ms
     flip_method=0):
-
     exposure_time = exposure_time * 1000000 #ms to ns
     exp_time_str = '"' + str(exposure_time) + ' ' + str(exposure_time) + '"'
-
-    #1280*720  = 921600
-    #1280*720*3=2764800
-
     return (
         'nvarguscamerasrc '
         'name="NanoCam" '
@@ -73,12 +68,6 @@ def gstreamer_pipeline(
         )
     )
 
-# sesnor-mode=4 latency 200ms
-# sensor-mode=3 latency 200ms
-# sensor-mode=2 latency 100ms
-# sensor-mode=0 latency 140ms
-
-
 def show_camera():
     # To flip the image, modify the flip_method parameter (0 and 2 are the most common)
     print(gstreamer_pipeline())
@@ -90,7 +79,7 @@ def show_camera():
             ret_val, img = cap.read()
             cv2.imshow("CSI Camera", img)
             # This also acts as
-            keyCode = cv2.waitKey(30) & 0xFF
+            keyCode = cv2.waitKey(1) & 0xFF
             # Stop the program on the ESC key
             if keyCode == 27:
                 break
