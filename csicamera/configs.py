@@ -2,11 +2,11 @@ configs = {
     ##############################################
     # Camera Settings
     ##############################################
-    'camera_res'      : (3264, 2464),   # Camera width & height
+    'camera_res'      : (1920, 1080),   # Camera width & height
                                         # CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT
     'exposure'        : -1,             # CSI camera: -1,0 = auto, 1 max=frame interval
                                         # CAP_PROP_EXPOSURE
-    'fps'             : 21,             # CSI: 1/10, 15, 30, 40, 90, 120 overlocked, 180?
+    'fps'             : 15,             # CSI: 1/10, 15, 30, 40, 90, 120 overlocked, 180?
     ##############################################
     # Target Recognition
     ##############################################

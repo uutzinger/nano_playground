@@ -226,11 +226,8 @@ class CSICapture(Thread):
                 num_frames = 0
                 last_fps_time = current_time
             with self.capture_lock:
-                _, img = self.capture.read()
-            # set the frame var to the img we just captured
-            self.frame = img
-            # tell any threads waiting for a new frame that we have one
-            num_frames += 1
+                _, self.frame = self.capture.read()
+                num_frames += 1
 
             if self.stopped:
                 self.capture.release()
